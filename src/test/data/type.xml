@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE datasource [
+  <!ELEMENT datasource (tables)>
+  <!ELEMENT tables     (table*)>
+  <!ELEMENT table      (fields, records)>
+  <!ELEMENT fields     (field*)>
+  <!ELEMENT records    (record*)>
+  <!ELEMENT record     (data*)>
+  <!ATTLIST table     label CDATA #IMPLIED>
+  <!ATTLIST table     name  CDATA #REQUIRED>
+  <!ATTLIST field     label CDATA #IMPLIED>
+  <!ATTLIST field     name  CDATA #REQUIRED>
+  <!ATTLIST field     type  CDATA #REQUIRED>
+  <!ATTLIST data      value CDATA #REQUIRED>
+]>
+<datasource>
+	<tables>
+		<table label="テーブル1" name="Table1" >
+			<fields>
+				<field label="文字列型" name="String" type="String" />
+				<field label="Boolean型" name="Boolean" type="Boolean" />
+				<field label="Integer型" name="Integer" type="Integer" />
+				<field label="Long型" name="Long" type="Long" />
+				<field label="Float型" name="Float" type="Float" />
+				<field label="Double型" name="Double" type="Double" />
+				<field label="Timestamp型" name="Timestamp" type="Timestamp" />
+				<field label="Date型" name="Date" type="Date" />
+				<field label="Time型" name="Time" type="Time" />
+			</fields>
+			<records>
+				<record>
+					<data value="デフォルト" />
+					<data value="TRUE" />
+					<data value="1" />
+					<data value="1" />
+					<data value="1" />
+					<data value="1" />
+					<data value="2014/12/31 23:59:59" />
+					<data value="2014/12/31" />
+					<data value="23:59:59" />
+				</record>
+				<record>
+					<data value="デフォルト" />
+					<data value="false" />
+					<data value="2" />
+					<data value="2" />
+					<data value="2" />
+					<data value="2" />
+					<data value="2015/1/1 01:02:03" />
+					<data value="2015/1/1" />
+					<data value="1:2:3" />
+				</record>
+			</records>
+		</table>
+	</tables>
+</datasource>

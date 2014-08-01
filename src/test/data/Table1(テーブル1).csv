@@ -1,0 +1,5 @@
+文字列型,Boolean型,Integer型,Long型,Float型,Double型,Timestamp型,Date型,Time型
+String,Boolean,Integer,Long,Float,Double,Timestamp,Date,Time
+String,Boolean,Integer,Long,Float,Double,Timestamp,Date,Time
+デフォルト,TRUE,1,1,1,1,2014/12/31 23:59:59,2014/12/31,23:59:59
+デフォルト,false,2,2,2,2,2015/1/1 01:02:03,2015/1/1,1:2:3
