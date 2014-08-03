@@ -58,6 +58,11 @@ import org.azkfw.util.StringUtility;
 public final class ExcelDatasourceBuilder {
 
 	/**
+	 * デフォルトのNULL文字列
+	 */
+	private static final String DEFAULT_NULL_STRING = "(NULL)";
+
+	/**
 	 * テーブル名称取得パターン
 	 * <p>
 	 * シート名からテーブル名とラベルを取得するためのパターン
@@ -65,17 +70,20 @@ public final class ExcelDatasourceBuilder {
 	 */
 	private static final Pattern PTN_TABLE_NAME = Pattern.compile("^(.+?)(\\((.*?){1}\\).*?){0,1}$");
 
+	/** データソース名 */
 	private String datasourceName;
-	private List<File> excelFiles;
+	/** NULL文字列 */
 	private String nullString;
+	/** Excelファイル一覧 */
+	private List<File> excelFiles;
 
 	/**
 	 * コンストラクタ
 	 */
 	private ExcelDatasourceBuilder() {
 		datasourceName = null;
+		nullString = DEFAULT_NULL_STRING;
 		excelFiles = new ArrayList<File>();
-		nullString = "(NULL)";
 	}
 
 	/**
@@ -85,8 +93,8 @@ public final class ExcelDatasourceBuilder {
 	 */
 	private ExcelDatasourceBuilder(final String aName) {
 		datasourceName = aName;
+		nullString = DEFAULT_NULL_STRING;
 		excelFiles = new ArrayList<File>();
-		nullString = "(NULL)";
 	}
 
 	/**
@@ -438,6 +446,13 @@ public final class ExcelDatasourceBuilder {
 		return string;
 	}
 
+	/**
+	 * このクラスは、Excel(xlsx)用のデータソース情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class ExcelDatasource implements Datasource {
 
 		private String name;
@@ -455,6 +470,13 @@ public final class ExcelDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、Excel(xlsx)用のテーブル情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class ExcelTable implements Table {
 
 		private String label;
@@ -484,6 +506,13 @@ public final class ExcelDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、Excel(xlsx)ファイル用のフィールド情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class ExcelField implements Field {
 
 		private String label;
@@ -509,6 +538,13 @@ public final class ExcelDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、Excel(xlsx)ファイル用のレコード情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class ExcelRecord implements Record {
 
 		private Map<String, Object> data;

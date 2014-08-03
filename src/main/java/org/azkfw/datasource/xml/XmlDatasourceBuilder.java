@@ -51,17 +51,25 @@ import org.xml.sax.SAXException;
  */
 public final class XmlDatasourceBuilder {
 
+	/**
+	 * デフォルトのNULL文字列
+	 */
+	private static final String DEFAULT_NULL_STRING = "(NULL)";
+
+	/** データソース名 */
 	private String datasourceName;
-	private List<File> xmlFiles;
+	/** NULL文字列 */
 	private String nullString;
+	/** XMLファイル一覧 */
+	private List<File> xmlFiles;
 
 	/**
 	 * コンストラクタ
 	 */
 	private XmlDatasourceBuilder() {
 		datasourceName = null;
+		nullString = DEFAULT_NULL_STRING;
 		xmlFiles = new ArrayList<File>();
-		nullString = "(NULL)";
 	}
 
 	/**
@@ -71,8 +79,8 @@ public final class XmlDatasourceBuilder {
 	 */
 	private XmlDatasourceBuilder(final String aName) {
 		datasourceName = aName;
+		nullString = DEFAULT_NULL_STRING;
 		xmlFiles = new ArrayList<File>();
-		nullString = "(NULL)";
 	}
 
 	/**
@@ -361,6 +369,13 @@ public final class XmlDatasourceBuilder {
 		return record;
 	}
 
+	/**
+	 * このクラスは、XML用のデータソース情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class XmlDatasource implements Datasource {
 
 		private String name;
@@ -378,6 +393,13 @@ public final class XmlDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、XML用のテーブル情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class XmlTable implements Table {
 
 		private String label;
@@ -407,6 +429,13 @@ public final class XmlDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、XMLファイル用のフィールド情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class XmlField implements Field {
 
 		private String label;
@@ -430,6 +459,13 @@ public final class XmlDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、XMLファイル用のレコード情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class XmlRecord implements Record {
 
 		private Map<String, Object> data;

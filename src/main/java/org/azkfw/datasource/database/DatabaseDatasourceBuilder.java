@@ -49,11 +49,18 @@ import org.azkfw.util.StringUtility;
  */
 public final class DatabaseDatasourceBuilder {
 
+	/** データソース名 */
 	private String datasourceName;
+	/** テーブル名一覧 */
 	private List<String> tableNames;
+
+	/** データベースドライバ */
 	private String databaseDriver;
+	/** データーベースURL */
 	private String databaseUrl;
+	/** データベースユーザ名 */
 	private String databaseUser;
+	/** データベースパスワード */
 	private String databasePassword;
 
 	/**
@@ -106,6 +113,15 @@ public final class DatabaseDatasourceBuilder {
 		return this;
 	}
 
+	/**
+	 * データベース情報を設定する。
+	 * 
+	 * @param aDriver ドライバ
+	 * @param aUrl URL
+	 * @param aUser ユーザ
+	 * @param aPassword パスワード
+	 * @return ビルダー
+	 */
 	public DatabaseDatasourceBuilder setDatabase(final String aDriver, final String aUrl, final String aUser, final String aPassword) {
 		databaseDriver = aDriver;
 		databaseUrl = aUrl;
@@ -114,6 +130,12 @@ public final class DatabaseDatasourceBuilder {
 		return this;
 	}
 
+	/**
+	 * テーブル名を追加する。
+	 * 
+	 * @param aName テーブル名
+	 * @return ビルダー
+	 */
 	public DatabaseDatasourceBuilder addTable(final String aName) {
 		tableNames.add(aName);
 		return this;
@@ -325,6 +347,13 @@ public final class DatabaseDatasourceBuilder {
 		return record;
 	}
 
+	/**
+	 * このクラスは、データベース用のデータソース情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class DatabaseDatasource implements Datasource {
 
 		private String name;
@@ -342,6 +371,13 @@ public final class DatabaseDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、データベース用のテーブル情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class DatabaseTable implements Table {
 
 		private String label;
@@ -371,6 +407,13 @@ public final class DatabaseDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、データベース用のフィールド情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class DatabaseField implements Field {
 
 		private String label;
@@ -394,6 +437,13 @@ public final class DatabaseDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、データベース用のレコード情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class DatabaseRecord implements Record {
 
 		private Map<String, Object> data;

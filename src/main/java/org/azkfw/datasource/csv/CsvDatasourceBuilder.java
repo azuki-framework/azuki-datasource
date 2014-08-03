@@ -35,6 +35,11 @@ import org.azkfw.util.StringUtility;
 public final class CsvDatasourceBuilder {
 
 	/**
+	 * デフォルトのNULL文字列
+	 */
+	private static final String DEFAULT_NULL_STRING = "(NULL)";
+
+	/**
 	 * テーブル名称取得パターン
 	 * <p>
 	 * ファイル名からテーブル名とラベルを取得するためのパターン
@@ -42,19 +47,23 @@ public final class CsvDatasourceBuilder {
 	 */
 	private static final Pattern PTN_FILE_NAME = Pattern.compile("^(.+?)(\\((.*?){1}\\).*?){0,1}\\..*?$");
 
+	/** データソース名 */
 	private String datasourceName;
-	private List<File> csvFiles;
+	/** NULL文字列 */
 	private String nullString;
+	/** CSVファイル文字コード */
 	private Charset charset;
+	/** CSVファイル一覧 */
+	private List<File> csvFiles;
 
 	/**
 	 * コンストラクタ
 	 */
 	private CsvDatasourceBuilder() {
 		datasourceName = null;
-		csvFiles = new ArrayList<File>();
+		nullString = DEFAULT_NULL_STRING;
 		charset = null;
-		nullString = "(NULL)";
+		csvFiles = new ArrayList<File>();
 	}
 
 	/**
@@ -64,9 +73,9 @@ public final class CsvDatasourceBuilder {
 	 */
 	private CsvDatasourceBuilder(final String aName) {
 		datasourceName = aName;
-		csvFiles = new ArrayList<File>();
+		nullString = DEFAULT_NULL_STRING;
 		charset = null;
-		nullString = "(NULL)";
+		csvFiles = new ArrayList<File>();
 	}
 
 	/**
@@ -90,7 +99,7 @@ public final class CsvDatasourceBuilder {
 		builder = builder.addFile(aFile);
 		return builder;
 	}
-	
+
 	/**
 	 * ビルダーを新規作成する。
 	 * 
@@ -126,7 +135,7 @@ public final class CsvDatasourceBuilder {
 		builder = builder.addFile(aFile);
 		return builder;
 	}
-	
+
 	/**
 	 * ビルダーを新規作成する。
 	 * 
@@ -364,6 +373,13 @@ public final class CsvDatasourceBuilder {
 		return record;
 	}
 
+	/**
+	 * このクラスは、CSV用のデータソース情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class CsvDatasource implements Datasource {
 
 		private String name;
@@ -381,6 +397,13 @@ public final class CsvDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、CSV用のテーブル情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class CsvTable implements Table {
 
 		private String label;
@@ -409,7 +432,14 @@ public final class CsvDatasourceBuilder {
 		}
 
 	}
-
+	
+	/**
+	 * このクラスは、CSVファイル用のフィールド情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class CsvField implements Field {
 
 		private String label;
@@ -433,6 +463,13 @@ public final class CsvDatasourceBuilder {
 
 	}
 
+	/**
+	 * このクラスは、CSVファイル用のレコード情報を保持するクラスです。
+	 * 
+	 * @since 1.0.0
+	 * @version 1.0.0 2014/08/02
+	 * @author Kawakicchi
+	 */
 	private final class CsvRecord implements Record {
 
 		private Map<String, Object> data;
