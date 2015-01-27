@@ -18,7 +18,7 @@
 
 	<groupId>org.azkfw</groupId>
 	<artifactId>azuki-datasource</artifactId>
-	<version>0.0.1</version>
+	<version>1.4.4</version>
 	<packaging>jar</packaging>
 
 	<name>azuki-datasource</name>
@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>org.azkfw</groupId>
 			<artifactId>azuki-base</artifactId>
-			<version>1.2.0</version>
+			<version>1.4.4</version>
 		</dependency>
 
 		<dependency>
@@ -67,11 +67,18 @@
         </dependency>
 
 		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.1-901.jdbc4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.28</version>
 			<scope>test</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
