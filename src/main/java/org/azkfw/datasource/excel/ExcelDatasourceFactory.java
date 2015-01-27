@@ -81,17 +81,26 @@ public final class ExcelDatasourceFactory {
 	 * @param aFile Excelファイル
 	 * @return データソース
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Datasource generate(final String aName, final File aFile) throws FileNotFoundException, ParseException, IOException {
+		return generate(aName, new FileInputStream(aFile));
+	}
+
+	/**
+	 * Excelファイルからデータソースを生成する。
+	 * 
+	 * @param aName データソース名
+	 * @param aStream Excelストリーム
+	 * @return データソース
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static Datasource generate(final String aName, final InputStream aStream) throws FileNotFoundException, ParseException, IOException {
 		ExcelDatasource datasource = new ExcelDatasource();
 		datasource.name = aName;
 
-		InputStream stream = null;
 		try {
 			List<Table> tables = new ArrayList<>();
 
-			stream = new FileInputStream(aFile);
-			XSSFWorkbook workbook = new XSSFWorkbook(stream);
+			XSSFWorkbook workbook = new XSSFWorkbook(aStream);
 			int cntSheet = workbook.getNumberOfSheets();
 			for (int i = 0; i < cntSheet; i++) {
 				String sheetName = workbook.getSheetName(i); // sheet name -> table name
@@ -152,12 +161,10 @@ public final class ExcelDatasourceFactory {
 		} catch (IOException ex) {
 			throw ex;
 		} finally {
-			if (null != stream) {
+			if (null != aStream) {
 				try {
-					stream.close();
+					aStream.close();
 				} catch (IOException ex) {
-				} finally {
-					stream = null;
 				}
 			}
 		}
