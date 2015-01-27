@@ -149,11 +149,11 @@ public final class DatabaseDatasourceFactory {
 			fieldType = FieldType.String;
 			break;
 		case Types.BOOLEAN:
+		case Types.BIT:
 			fieldType = FieldType.Boolean;
 			break;
 		case Types.INTEGER:
 		case Types.TINYINT:
-		case Types.BIT:
 			fieldType = FieldType.Integer;
 			break;
 		case Types.BIGINT:
