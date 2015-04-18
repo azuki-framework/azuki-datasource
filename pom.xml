@@ -18,7 +18,7 @@
 
 	<groupId>org.azkfw</groupId>
 	<artifactId>azuki-datasource</artifactId>
-	<version>1.4.4</version>
+	<version>1.5.0</version>
 	<packaging>jar</packaging>
 
 	<name>azuki-datasource</name>
@@ -52,14 +52,9 @@
 		<dependency>
 			<groupId>org.azkfw</groupId>
 			<artifactId>azuki-base</artifactId>
-			<version>1.4.4</version>
+			<version>1.5.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-digester3</artifactId>
-			<version>3.2</version>
-		</dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
