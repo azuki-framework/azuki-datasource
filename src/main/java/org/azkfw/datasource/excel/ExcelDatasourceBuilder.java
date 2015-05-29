@@ -306,7 +306,7 @@ public final class ExcelDatasourceBuilder {
 
 		return datasource;
 	}
-
+	
 	private ExcelField readField(final int aCol, final XSSFCell aLabelCell, final XSSFCell aNameCell, final XSSFCell aTypeCell) throws ParseException {
 		String label = toStringFromCell(aLabelCell);
 		String name = toStringFromCell(aNameCell);
@@ -350,45 +350,73 @@ public final class ExcelDatasourceBuilder {
 					String obj = value;
 					data.put(field.name, obj);
 				} else if (FieldType.Boolean == field.type) {
-					Boolean obj = Boolean.parseBoolean(value);
-					data.put(field.name, obj);
+					if (StringUtility.isNotEmpty(value)) {
+						Boolean obj = Boolean.parseBoolean(value);
+						data.put(field.name, obj);
+					} else {
+						data.put(field.name, null);
+					}
 				} else if (FieldType.Integer == field.type) {
-					Double obj = Double.parseDouble(value);
-					data.put(field.name, Integer.valueOf(obj.intValue()));
+					if (StringUtility.isNotEmpty(value)) {
+						Double obj = Double.parseDouble(value);
+						data.put(field.name, Integer.valueOf(obj.intValue()));
+					} else {
+						data.put(field.name, null);
+					}
 				} else if (FieldType.Long == field.type) {
-					Double obj = Double.parseDouble(value);
-					data.put(field.name, Long.valueOf(obj.longValue()));
+					if (StringUtility.isNotEmpty(value)) {
+						Double obj = Double.parseDouble(value);
+						data.put(field.name, Long.valueOf(obj.longValue()));
+					} else {
+						data.put(field.name, null);
+					}
 				} else if (FieldType.Float == field.type) {
-					Float obj = Float.parseFloat(value);
-					data.put(field.name, obj);
+					if (StringUtility.isNotEmpty(value)) {
+						Float obj = Float.parseFloat(value);
+						data.put(field.name, obj);
+					} else {
+						data.put(field.name, null);
+					}
 				} else if (FieldType.Double == field.type) {
-					Double obj = Double.parseDouble(value);
-					data.put(field.name, obj);
+					if (StringUtility.isNotEmpty(value)) {
+						Double obj = Double.parseDouble(value);
+						data.put(field.name, obj);
+					} else {
+						data.put(field.name, null);
+					}
 				} else if (FieldType.Timestamp == field.type) {
 					Timestamp obj = null;
-					if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
-						obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
-					} else {
-						obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+					if (StringUtility.isNotEmpty(value)) {
+						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
+							obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+						} else {
+							obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+						}
 					}
 					data.put(field.name, obj);
 				} else if (FieldType.Date == field.type) {
-					Timestamp ts = null;
-					if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
-						ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd").parse(value).getTime());
-					} else {
-						ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+					Date obj = null;
+					if (StringUtility.isNotEmpty(value)) {
+						Timestamp ts = null;
+						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
+							ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd").parse(value).getTime());
+						} else {
+							ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+						}
+						obj = new Date(ts.getTime());
 					}
-					Date obj = new Date(ts.getTime());
 					data.put(field.name, obj);
 				} else if (FieldType.Time == field.type) {
-					Timestamp ts = null;
-					if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
-						ts = new Timestamp(new SimpleDateFormat("HH:mm:ss").parse(value).getTime());
-					} else {
-						ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+					Time obj = null;
+					if (StringUtility.isNotEmpty(value)) {
+						Timestamp ts = null;
+						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
+							ts = new Timestamp(new SimpleDateFormat("HH:mm:ss").parse(value).getTime());
+						} else {
+							ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
+						}
+						obj = new Time(ts.getTime());
 					}
-					Time obj = new Time(ts.getTime());
 					data.put(field.name, obj);
 				} else {
 					throw new ParseException("Undefined type.[" + field.getType() + "]", aRowNum);

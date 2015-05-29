@@ -53,6 +53,7 @@ import org.azkfw.util.StringUtility;
  * @since 1.0.0
  * @version 1.0.0 2014/07/31
  * @author Kawakicchi
+ * @deprecated {@link ExcelDatasourceBuilder}
  */
 public final class ExcelDatasourceFactory {
 

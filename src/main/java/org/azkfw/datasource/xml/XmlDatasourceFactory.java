@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
  * @since 1.0.0
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
+ * @deprecated {@link XmlDatasourceBuilder}
  */
 public final class XmlDatasourceFactory {
 

@@ -106,10 +106,18 @@ public enum FieldType {
 	 */
 	public static FieldType valueOfName(final String aName) {
 		FieldType type = Unknown;
-		for (FieldType ft : values()) {
-			if (ft.name.equals(aName.toUpperCase())) {
-				type = ft;
-				break;
+		if (null != aName) {
+			String name = aName.toUpperCase();
+			for (FieldType ft : values()) {
+				if (ft.name.equals(name)) {
+					type = ft;
+					break;
+				}
+			}
+			if ("VARCHAR2".equals(name)) {
+				return String;
+			} else if("NUMBER".equals(name)) {
+				return Long;
 			}
 		}
 		return type;

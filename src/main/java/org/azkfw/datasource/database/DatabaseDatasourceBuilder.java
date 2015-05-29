@@ -243,7 +243,7 @@ public final class DatabaseDatasourceBuilder {
 	}
 
 	private DatabaseField readField(final int aCol, final String aLabel, final String aName, final int aType) throws ParseException {
-		if (StringUtility.isEmpty(aLabel)) {
+		if (StringUtility.isEmpty(aName)) {
 			throw new ParseException("Field name is empty.[row: 2; col: " + aCol + ";]", -1);
 		}
 
@@ -269,6 +269,7 @@ public final class DatabaseDatasourceBuilder {
 		case Types.FLOAT:
 			fieldType = FieldType.Float;
 			break;
+		case Types.NUMERIC: // TODO: NUMERIC対応
 		case Types.DOUBLE:
 			fieldType = FieldType.Double;
 			break;
