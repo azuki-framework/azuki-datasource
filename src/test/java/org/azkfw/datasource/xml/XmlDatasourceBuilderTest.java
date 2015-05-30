@@ -1,7 +1,6 @@
-package org.azkfw.datasource.csv;
+package org.azkfw.datasource.xml;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -18,17 +17,18 @@ import org.azkfw.datasource.Record;
 import org.azkfw.datasource.Table;
 import org.junit.Test;
 
-public class CsvDatasourceFactoryTest extends TestCase {
+public class XmlDatasourceBuilderTest extends TestCase {
 
 	@Test
 	public void testType1() {
-		File file = new File("./src/test/data/Table1(テーブル1).csv");
+		File file = new File("./src/test/data/type.xml");
 
 		try {
-			Datasource datasource = CsvDatasourceFactory.generate("type.csv", Charset.forName("UTF-8"), file);
+			XmlDatasourceBuilder builder = XmlDatasourceBuilder.newInstance("type.xml", file);
+			Datasource datasource = builder.build();
 
 			assertNotNull(datasource);
-			assertEquals("type.csv", datasource.getName());
+			assertEquals("type.xml", datasource.getName());
 
 			List<Table> tables = datasource.getTables();
 			assertNotNull(tables);
@@ -138,13 +138,13 @@ public class CsvDatasourceFactoryTest extends TestCase {
 
 	@Test
 	public void testType2() {
-		File file = new File("./src/test/data/Table1(テーブル1).csv");
+		File file = new File("./src/test/data/type.xml");
 
 		try {
-			Datasource datasource = CsvDatasourceBuilder.newInstance("type.csv").setCharset("UTF-8").addFile(file).build();
+			Datasource datasource = XmlDatasourceBuilder.newInstance("type.xml").addFile(file).build();
 
 			assertNotNull(datasource);
-			assertEquals("type.csv", datasource.getName());
+			assertEquals("type.xml", datasource.getName());
 
 			List<Table> tables = datasource.getTables();
 			assertNotNull(tables);

@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.apache.commons.digester3.Digester;
 import org.azkfw.datasource.Datasource;
+import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -49,7 +50,7 @@ import org.xml.sax.SAXException;
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
  */
-public final class XmlDatasourceBuilder {
+public final class XmlDatasourceBuilder extends DatasourceBuilder {
 
 	/**
 	 * デフォルトのNULL文字列
@@ -67,6 +68,7 @@ public final class XmlDatasourceBuilder {
 	 * コンストラクタ
 	 */
 	private XmlDatasourceBuilder() {
+		super(XmlDatasourceBuilder.class);
 		datasourceName = null;
 		nullString = DEFAULT_NULL_STRING;
 		xmlFiles = new ArrayList<File>();
@@ -75,10 +77,11 @@ public final class XmlDatasourceBuilder {
 	/**
 	 * コンストラクタ
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 */
-	private XmlDatasourceBuilder(final String aName) {
-		datasourceName = aName;
+	private XmlDatasourceBuilder(final String name) {
+		super(XmlDatasourceBuilder.class);
+		datasourceName = name;
 		nullString = DEFAULT_NULL_STRING;
 		xmlFiles = new ArrayList<File>();
 	}
@@ -96,105 +99,105 @@ public final class XmlDatasourceBuilder {
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aFile XMLファイル
+	 * @param file XMLファイル
 	 * @return 新規ビルダー
 	 */
-	public static XmlDatasourceBuilder newInstance(final File aFile) {
+	public static XmlDatasourceBuilder newInstance(final File file) {
 		XmlDatasourceBuilder builder = new XmlDatasourceBuilder();
-		builder = builder.addFile(aFile);
+		builder = builder.addFile(file);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aFiles XMLファイル一覧
+	 * @param files XMLファイル一覧
 	 * @return 新規ビルダー
 	 */
-	public static XmlDatasourceBuilder newInstance(final List<File> aFiles) {
+	public static XmlDatasourceBuilder newInstance(final List<File> files) {
 		XmlDatasourceBuilder builder = new XmlDatasourceBuilder();
-		builder = builder.addFiles(aFiles);
+		builder = builder.addFiles(files);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return 新規ビルダー
 	 */
-	public static XmlDatasourceBuilder newInstance(final String aName) {
-		XmlDatasourceBuilder builder = new XmlDatasourceBuilder(aName);
+	public static XmlDatasourceBuilder newInstance(final String name) {
+		XmlDatasourceBuilder builder = new XmlDatasourceBuilder(name);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
-	 * @param aFile XMLファイル
+	 * @param name データソース名
+	 * @param file XMLファイル
 	 * @return 新規ビルダー
 	 */
-	public static XmlDatasourceBuilder newInstance(final String aName, final File aFile) {
-		XmlDatasourceBuilder builder = new XmlDatasourceBuilder(aName);
-		builder = builder.addFile(aFile);
+	public static XmlDatasourceBuilder newInstance(final String name, final File file) {
+		XmlDatasourceBuilder builder = new XmlDatasourceBuilder(name);
+		builder = builder.addFile(file);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
-	 * @param aFiles XMLファイル一覧
+	 * @param name データソース名
+	 * @param files XMLファイル一覧
 	 * @return 新規ビルダー
 	 */
-	public static XmlDatasourceBuilder newInstance(final String aName, final List<File> aFiles) {
-		XmlDatasourceBuilder builder = new XmlDatasourceBuilder(aName);
-		builder = builder.addFiles(aFiles);
+	public static XmlDatasourceBuilder newInstance(final String name, final List<File> files) {
+		XmlDatasourceBuilder builder = new XmlDatasourceBuilder(name);
+		builder = builder.addFiles(files);
 		return builder;
 	}
 
 	/**
 	 * データソース名を設定する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return ビルダー
 	 */
-	public XmlDatasourceBuilder setDatasourceName(final String aName) {
-		datasourceName = aName;
+	public XmlDatasourceBuilder setDatasourceName(final String name) {
+		datasourceName = name;
 		return this;
 	}
 
 	/**
 	 * XMLファイルを追加する。
 	 * 
-	 * @param aFile XMLファイル
+	 * @param file XMLファイル
 	 * @return ビルダー
 	 */
-	public XmlDatasourceBuilder addFile(final File aFile) {
-		xmlFiles.add(aFile);
+	public XmlDatasourceBuilder addFile(final File file) {
+		xmlFiles.add(file);
 		return this;
 	}
 
 	/**
 	 * XMLファイル一覧を追加する。
 	 * 
-	 * @param aFiles XMLファイル一覧
+	 * @param files XMLファイル一覧
 	 * @return ビルダー
 	 */
-	public XmlDatasourceBuilder addFiles(final Collection<File> aFiles) {
-		xmlFiles.addAll(aFiles);
+	public XmlDatasourceBuilder addFiles(final Collection<File> files) {
+		xmlFiles.addAll(files);
 		return this;
 	}
 
 	/**
 	 * NULL文字列を設定する。
 	 * 
-	 * @param aString NULL文字列
+	 * @param string NULL文字列
 	 * @return ビルダー
 	 */
-	public XmlDatasourceBuilder setNullString(final String aString) {
-		nullString = aString;
+	public XmlDatasourceBuilder setNullString(final String string) {
+		nullString = string;
 		return this;
 	}
 
@@ -207,7 +210,7 @@ public final class XmlDatasourceBuilder {
 	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Datasource build() throws FileNotFoundException, ParseException, IOException {
+	public Datasource build() throws ParseException {
 		XmlDatasource datasource = new XmlDatasource();
 		datasource.name = datasourceName;
 
@@ -281,121 +284,121 @@ public final class XmlDatasourceBuilder {
 			datasource.tables = (List) tables;
 
 		} catch (SAXException ex) {
+			fatal(ex);
 			throw new ParseException(ex.getMessage(), -1);
 		} catch (IOException ex) {
-			throw ex;
+			fatal(ex);
+			throw new ParseException(ex.getMessage(), -1);
 		} finally {
-			if (null != stream) {
-				try {
-					stream.close();
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
+			release(stream);
 		}
 
 		return datasource;
 	}
 
-	private XmlField readField(final int aCol, final XmlFieldEntity aField) throws ParseException {
-		if (StringUtility.isEmpty(aField.name)) {
-			throw new ParseException("Field name is empty.[row: 2; col: " + aCol + ";]", 2);
+	/**
+	 * フィールド情報を読み込む。
+	 * 
+	 * @param col 列番号(0始まり)
+	 * @param entity エンティティ情報
+	 * @return フィールド情報
+	 * @throws ParseException
+	 */
+	private XmlField readField(final int col, final XmlFieldEntity entity) throws ParseException {
+		if (StringUtility.isEmpty(entity.name)) {
+			throw new ParseException(String.format("Field name is empty.[col: %d;]", col), -1);
 		}
-		if (StringUtility.isEmpty(aField.type)) {
-			throw new ParseException("Field type is empty.[row: 2; col: " + aCol + ";]", 2);
+		if (StringUtility.isEmpty(entity.type)) {
+			throw new ParseException(String.format("Field type is empty.[col: %d;]", col), -1);
 		}
 
-		FieldType fieldType = FieldType.valueOfName(aField.type.trim());
+		FieldType fieldType = FieldType.valueOfName(entity.type.trim());
 		if (FieldType.Unknown == fieldType) {
-			throw new ParseException("Undefined type.[type: " + aField.type + "; col: " + aCol + ";]", 2);
+			throw new ParseException(String.format("Undefined type.[type: %s; col: %d;]", entity.type, col), -1);
 		}
 
 		XmlField field = new XmlField();
-		field.label = aField.label;
-		field.name = aField.name;
+		field.label = entity.label;
+		field.name = entity.name;
 		field.type = fieldType;
-
 		return field;
 	}
 
-	private XmlRecord readData(final int aRowNum, final XmlRecordEntity aRecord, final List<XmlField> aFields) throws ParseException {
+	private XmlRecord readData(final int rowNum, final XmlRecordEntity entity, final List<XmlField> fields) throws ParseException {
 		Map<String, Object> data = new HashMap<String, Object>();
-		for (int i = 0; i < aFields.size(); i++) {
-			XmlField field = aFields.get(i);
-			XmlRecordDataEntity d = aRecord.data.get(i);
+		for (int i = 0; i < fields.size(); i++) {
+			XmlField field = fields.get(i);
+			XmlRecordDataEntity d = entity.data.get(i);
 
 			String value = d.value;
 
+			Object obj = null;
 			if (nullString.equals(value)) {
-				data.put(field.name, null);
 			} else {
 				if (FieldType.String == field.type) {
-					String obj = value;
-					data.put(field.name, obj);
+					obj = value;
 				} else if (FieldType.Boolean == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Boolean obj = Boolean.parseBoolean(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Boolean.parseBoolean(value);
 					}
 				} else if (FieldType.Integer == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, Integer.valueOf(obj.intValue()));
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = Integer.valueOf(dbl.intValue());
 					}
 				} else if (FieldType.Long == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, Long.valueOf(obj.longValue()));
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = Long.valueOf(dbl.longValue());
 					}
 				} else if (FieldType.Float == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Float obj = Float.parseFloat(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Float.parseFloat(value);
 					}
 				} else if (FieldType.Double == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Double.parseDouble(value);
 					}
 				} else if (FieldType.Timestamp == field.type) {
-					Timestamp obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
 					}
-					data.put(field.name, obj);
 				} else if (FieldType.Date == field.type) {
-					Date obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						Timestamp ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd").parse(value).getTime());
 						obj = new Date(ts.getTime());
 					}
-					data.put(field.name, obj);
 				} else if (FieldType.Time == field.type) {
-					Time obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						Timestamp ts = new Timestamp(new SimpleDateFormat("HH:mm:ss").parse(value).getTime());
 						obj = new Time(ts.getTime());
 					}
-					data.put(field.name, obj);
 				} else {
-					throw new ParseException("Undefined type.[" + field.getType() + "]", aRowNum);
+					throw new ParseException(String.format("Undefined type.[%s]", field.getType()), rowNum);
 				}
 			}
+
+			data.put(field.name, obj);
 		}
 
 		XmlRecord record = new XmlRecord();
 		record.data = data;
 		return record;
+	}
+
+	/**
+	 * ストリームを解放する。
+	 * 
+	 * @param stream ストリーム
+	 */
+	private void release(final InputStream stream) {
+		try {
+			if (null != stream) {
+				stream.close();
+			}
+		} catch (IOException ex) {
+			warn("Strem close error.", ex);
+		}
 	}
 
 	/**

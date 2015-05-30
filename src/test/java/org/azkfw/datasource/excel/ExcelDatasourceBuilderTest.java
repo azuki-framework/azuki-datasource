@@ -17,14 +17,15 @@ import org.azkfw.datasource.Record;
 import org.azkfw.datasource.Table;
 import org.junit.Test;
 
-public class ExcelDatasourceFactoryTest extends TestCase {
+public class ExcelDatasourceBuilderTest extends TestCase {
 
 	@Test
 	public void testType1() {
 		File file = new File("./src/test/data/type.xlsx");
 
 		try {
-			Datasource datasource = ExcelDatasourceFactory.generate(file);
+			ExcelDatasourceBuilder builder = ExcelDatasourceBuilder.newInstance("type.xlsx", file);
+			Datasource datasource = builder.build();
 
 			assertNotNull(datasource);
 			assertEquals("type.xlsx", datasource.getName());

@@ -17,8 +17,6 @@
  */
 package org.azkfw.datasource.database;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -34,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.azkfw.datasource.Datasource;
+import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -47,7 +46,7 @@ import org.azkfw.util.StringUtility;
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
  */
-public final class DatabaseDatasourceBuilder {
+public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 
 	/** データソース名 */
 	private String datasourceName;
@@ -67,6 +66,7 @@ public final class DatabaseDatasourceBuilder {
 	 * コンストラクタ
 	 */
 	private DatabaseDatasourceBuilder() {
+		super(DatabaseDatasourceBuilder.class);
 		datasourceName = null;
 		tableNames = new ArrayList<String>();
 	}
@@ -77,6 +77,7 @@ public final class DatabaseDatasourceBuilder {
 	 * @param aName データソース名
 	 */
 	private DatabaseDatasourceBuilder(final String aName) {
+		super(DatabaseDatasourceBuilder.class);
 		datasourceName = aName;
 		tableNames = new ArrayList<String>();
 	}
@@ -105,39 +106,52 @@ public final class DatabaseDatasourceBuilder {
 	/**
 	 * データソース名を設定する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return ビルダー
 	 */
-	public DatabaseDatasourceBuilder setDatasourceName(final String aName) {
-		datasourceName = aName;
+	public DatabaseDatasourceBuilder setDatasourceName(final String name) {
+		datasourceName = name;
 		return this;
 	}
 
 	/**
 	 * データベース情報を設定する。
 	 * 
-	 * @param aDriver ドライバ
-	 * @param aUrl URL
-	 * @param aUser ユーザ
-	 * @param aPassword パスワード
+	 * @param driver ドライバ
+	 * @param url URL
+	 * @param user ユーザ
+	 * @param password パスワード
 	 * @return ビルダー
 	 */
-	public DatabaseDatasourceBuilder setDatabase(final String aDriver, final String aUrl, final String aUser, final String aPassword) {
-		databaseDriver = aDriver;
-		databaseUrl = aUrl;
-		databaseUser = aUser;
-		databasePassword = aPassword;
+	public DatabaseDatasourceBuilder setDatabase(final String driver, final String url, final String user, final String password) {
+		databaseDriver = driver;
+		databaseUrl = url;
+		databaseUser = user;
+		databasePassword = password;
 		return this;
 	}
 
 	/**
 	 * テーブル名を追加する。
 	 * 
-	 * @param aName テーブル名
+	 * @param name テーブル名
 	 * @return ビルダー
 	 */
-	public DatabaseDatasourceBuilder addTable(final String aName) {
-		tableNames.add(aName);
+	public DatabaseDatasourceBuilder addTable(final String name) {
+		tableNames.add(name);
+		return this;
+	}
+
+	/**
+	 * テーブル名群を追加する。
+	 * 
+	 * @param name テーブル名群
+	 * @return ビルダー
+	 */
+	public DatabaseDatasourceBuilder addTables(final String... names) {
+		for (String name : names) {
+			tableNames.add(name);
+		}
 		return this;
 	}
 
@@ -145,12 +159,10 @@ public final class DatabaseDatasourceBuilder {
 	 * データソースを構築する。
 	 * 
 	 * @return データソース
-	 * @throws FileNotFoundException
 	 * @throws ParseException
-	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Datasource build() throws FileNotFoundException, ParseException, IOException {
+	public Datasource build() throws ParseException {
 		DatabaseDatasource datasource = new DatabaseDatasource();
 		datasource.name = datasourceName;
 
@@ -163,22 +175,24 @@ public final class DatabaseDatasourceBuilder {
 			Class.forName(databaseDriver);
 			connection = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword);
 
+			st = connection.createStatement();
+
 			for (String tableName : tableNames) {
 				DatabaseTable table = new DatabaseTable();
 				table.label = tableName;
 				table.name = tableName;
 
 				StringBuilder sql = new StringBuilder();
-				sql.append("SELECT * FROM " + tableName);
+				sql.append("SELECT * FROM " + tableName + ";");
 
-				st = connection.createStatement();
+				debug(String.format("Execute query.[SQL: %s]", sql.toString()));
 				rs = st.executeQuery(sql.toString());
 
 				// Read Field
 				List<DatabaseField> fields = new ArrayList<DatabaseField>();
 				ResultSetMetaData meta = rs.getMetaData();
 				for (int col = 0; col < meta.getColumnCount(); col++) {
-					DatabaseField field = readField(col, meta.getColumnLabel(col + 1), meta.getColumnLabel(col + 1), meta.getColumnType(col + 1));
+					DatabaseField field = readField(col, meta);
 					fields.add(field);
 				}
 
@@ -186,69 +200,59 @@ public final class DatabaseDatasourceBuilder {
 				List<DatabaseRecord> records = new ArrayList<DatabaseRecord>();
 				int row = 0;
 				while (rs.next()) {
-					DatabaseRecord record = readData(row, rs, fields);
+					DatabaseRecord record = readRecord(row, rs, fields);
 					records.add(record);
-
 					row++;
 				}
 
 				table.fields = (List) fields;
 				table.records = (List) records;
-
 				tables.add(table);
+
+				info(String.format("Read table.[table: %s; record: %d;]", tableName, records.size()));
 
 				rs.close();
 				rs = null;
-				st.close();
-				st = null;
 			}
 
 			datasource.tables = (List) tables;
 
 		} catch (ClassNotFoundException ex) {
+			fatal(ex);
 			throw new ParseException(ex.getMessage(), -1);
 		} catch (SQLException ex) {
+			fatal(ex);
 			throw new ParseException(ex.getMessage(), -1);
 		} finally {
-			if (null != rs) {
-				try {
-					rs.close();
-				} catch (SQLException ex) {
-
-				} finally {
-					rs = null;
-				}
-			}
-			if (null != st) {
-				try {
-					st.close();
-				} catch (SQLException ex) {
-
-				} finally {
-					st = null;
-				}
-			}
-			if (null != connection) {
-				try {
-					connection.close();
-				} catch (SQLException ex) {
-
-				} finally {
-					connection = null;
-				}
-			}
+			release(rs);
+			release(st);
+			release(connection);
 		}
-
 		return datasource;
 	}
 
-	private DatabaseField readField(final int aCol, final String aLabel, final String aName, final int aType) throws ParseException {
-		if (StringUtility.isEmpty(aName)) {
-			throw new ParseException("Field name is empty.[row: 2; col: " + aCol + ";]", -1);
+	/**
+	 * フィールド情報を読み込む。
+	 * 
+	 * @param col 列番号(0始まり)
+	 * @param label ラベル名
+	 * @param name フィールド名
+	 * @param type フィールドタイプ
+	 * @return フィールド情報
+	 * @throws ParseException
+	 */
+	private DatabaseField readField(final int colNum, final ResultSetMetaData meta) throws ParseException, SQLException {
+		String name = meta.getColumnLabel(colNum + 1);
+		String label = meta.getColumnLabel(colNum + 1);
+		int type = meta.getColumnType(colNum + 1);
+		String typeName = meta.getColumnTypeName(colNum + 1);
+
+		if (StringUtility.isEmpty(name)) {
+			throw new ParseException(String.format("Field name is empty.[col: %d;]", colNum), -1);
 		}
 
 		FieldType fieldType = null;
-		switch (aType) {
+		switch (type) {
 		case Types.CHAR:
 		case Types.NCHAR:
 		case Types.NVARCHAR:
@@ -283,69 +287,123 @@ public final class DatabaseDatasourceBuilder {
 			fieldType = FieldType.Time;
 			break;
 		default:
-			throw new ParseException("Undefined type.[name: " + aLabel + "; type: " + aType + "; row: 2; col: " + aCol + ";]", 2);
+			throw new ParseException(String.format("Undefined type.[name: %s; type: %s(%d); col: %d;]", label, typeName, type, colNum), 2);
 		}
 
 		DatabaseField field = new DatabaseField();
-		field.label = aLabel;
-		field.name = aLabel;
+		field.label = label;
+		field.name = label;
 		field.type = fieldType;
-
 		return field;
 	}
 
-	private DatabaseRecord readData(final int aRowNum, final ResultSet rs, final List<DatabaseField> aFields) throws ParseException, SQLException {
+	/**
+	 * レコード情報を読み込む。
+	 * 
+	 * @param rowNum 行番号(0始まり)
+	 * @param rs {@link ResultSet}
+	 * @param fields フィールド情報
+	 * @return レコード情報
+	 * @throws ParseException
+	 * @throws SQLException
+	 */
+	private DatabaseRecord readRecord(final int rowNum, final ResultSet rs, final List<DatabaseField> fields) throws ParseException, SQLException {
 		Map<String, Object> data = new HashMap<String, Object>();
-		for (int i = 0; i < aFields.size(); i++) {
-			DatabaseField field = aFields.get(i);
+		for (int i = 0; i < fields.size(); i++) {
+			DatabaseField field = fields.get(i);
 
+			Object obj = null;
 			if (FieldType.String == field.type) {
-				data.put(field.name, rs.getString(field.name));
+				obj = rs.getString(field.name);
 			} else if (FieldType.Boolean == field.type) {
-				data.put(field.name, rs.getBoolean(field.name));
+				obj = rs.getBoolean(field.name);
 			} else if (FieldType.Integer == field.type) {
 				BigDecimal decimal = rs.getBigDecimal(field.name);
-				if (null == decimal) {
-					data.put(field.name, null);
-				} else {
-					data.put(field.name, Integer.valueOf(decimal.intValue()));
+				if (null != decimal) {
+					obj = Integer.valueOf(decimal.intValue());
 				}
 			} else if (FieldType.Long == field.type) {
 				BigDecimal decimal = rs.getBigDecimal(field.name);
-				if (null == decimal) {
-					data.put(field.name, null);
-				} else {
-					data.put(field.name, Long.valueOf(decimal.longValue()));
+				if (null != decimal) {
+					obj = Long.valueOf(decimal.longValue());
 				}
 			} else if (FieldType.Float == field.type) {
 				BigDecimal decimal = rs.getBigDecimal(field.name);
-				if (null == decimal) {
-					data.put(field.name, null);
-				} else {
-					data.put(field.name, Float.valueOf(decimal.floatValue()));
+				if (null != decimal) {
+					obj = Float.valueOf(decimal.floatValue());
 				}
 			} else if (FieldType.Double == field.type) {
 				BigDecimal decimal = rs.getBigDecimal(field.name);
-				if (null == decimal) {
-					data.put(field.name, null);
-				} else {
-					data.put(field.name, Double.valueOf(decimal.doubleValue()));
+				if (null != decimal) {
+					obj = Double.valueOf(decimal.doubleValue());
 				}
 			} else if (FieldType.Timestamp == field.type) {
-				data.put(field.name, rs.getTimestamp(field.name));
+				obj = rs.getTimestamp(field.name);
 			} else if (FieldType.Date == field.type) {
-				data.put(field.name, rs.getDate(field.name));
+				obj = rs.getDate(field.name);
 			} else if (FieldType.Time == field.type) {
-				data.put(field.name, rs.getTime(field.name));
+				obj = rs.getTime(field.name);
 			} else {
-				throw new ParseException("Undefined type.[" + field.getType() + "]", aRowNum);
+				throw new ParseException(String.format("Undefined type.[%s]", field.getType()), rowNum);
 			}
 
+			data.put(field.name, obj);
 		}
 
 		DatabaseRecord record = new DatabaseRecord();
 		record.data = data;
 		return record;
+	}
+
+	/**
+	 * ResultSetを解放する。
+	 * 
+	 * @param rs ResultSet
+	 */
+	private void release(final ResultSet rs) {
+		try {
+			if (null != rs) {
+				if (!rs.isClosed()) {
+					rs.close();
+				}
+			}
+		} catch (SQLException ex) {
+			warn("ResultSet release error.", ex);
+		}
+	}
+
+	/**
+	 * ステートメントを解放する。
+	 * 
+	 * @param s ステートメント
+	 */
+	private void release(final Statement s) {
+		try {
+			if (null != s) {
+				if (!s.isClosed()) {
+					s.close();
+				}
+			}
+		} catch (SQLException ex) {
+			warn("Statement release error.", ex);
+		}
+	}
+
+	/**
+	 * コネクションを解放する。
+	 * 
+	 * @param c コネクション
+	 */
+	private void release(final Connection c) {
+		try {
+			if (null != c) {
+				if (!c.isClosed()) {
+					c.close();
+				}
+			}
+		} catch (SQLException ex) {
+			warn("Connection release error.", ex);
+		}
 	}
 
 	/**
@@ -369,7 +427,6 @@ public final class DatabaseDatasourceBuilder {
 		public List<Table> getTables() {
 			return tables;
 		}
-
 	}
 
 	/**

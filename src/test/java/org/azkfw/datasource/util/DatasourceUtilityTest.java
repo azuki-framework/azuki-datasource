@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 import org.azkfw.datasource.Datasource;
 import org.azkfw.datasource.Table;
-import org.azkfw.datasource.excel.ExcelDatasourceFactory;
+import org.azkfw.datasource.excel.ExcelDatasourceBuilder;
 import org.junit.Test;
 
 public class DatasourceUtilityTest extends TestCase {
@@ -17,7 +17,8 @@ public class DatasourceUtilityTest extends TestCase {
 		File file = new File("./src/test/data/sort.xlsx");
 
 		try {
-			Datasource datasource = ExcelDatasourceFactory.generate(file);
+			ExcelDatasourceBuilder builder = ExcelDatasourceBuilder.newInstance(file);
+			Datasource datasource = builder.build();
 
 			Table table = datasource.getTables().get(0);
 

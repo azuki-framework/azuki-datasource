@@ -42,6 +42,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.azkfw.datasource.Datasource;
+import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -55,7 +56,7 @@ import org.azkfw.util.StringUtility;
  * @version 1.0.0 2014/07/31
  * @author Kawakicchi
  */
-public final class ExcelDatasourceBuilder {
+public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 
 	/**
 	 * デフォルトのNULL文字列
@@ -81,6 +82,7 @@ public final class ExcelDatasourceBuilder {
 	 * コンストラクタ
 	 */
 	private ExcelDatasourceBuilder() {
+		super(ExcelDatasourceBuilder.class);
 		datasourceName = null;
 		nullString = DEFAULT_NULL_STRING;
 		excelFiles = new ArrayList<File>();
@@ -89,10 +91,11 @@ public final class ExcelDatasourceBuilder {
 	/**
 	 * コンストラクタ
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 */
-	private ExcelDatasourceBuilder(final String aName) {
-		datasourceName = aName;
+	private ExcelDatasourceBuilder(final String name) {
+		super(ExcelDatasourceBuilder.class);
+		datasourceName = name;
 		nullString = DEFAULT_NULL_STRING;
 		excelFiles = new ArrayList<File>();
 	}
@@ -110,105 +113,105 @@ public final class ExcelDatasourceBuilder {
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aFile Excel(xlsx)ファイル
+	 * @param file Excel(xlsx)ファイル
 	 * @return 新規ビルダー
 	 */
-	public static ExcelDatasourceBuilder newInstance(final File aFile) {
+	public static ExcelDatasourceBuilder newInstance(final File file) {
 		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder();
-		builder = builder.addFile(aFile);
+		builder = builder.addFile(file);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aFiles Excel(xlsx)ファイル一覧
+	 * @param files Excel(xlsx)ファイル一覧
 	 * @return 新規ビルダー
 	 */
-	public static ExcelDatasourceBuilder newInstance(final List<File> aFiles) {
+	public static ExcelDatasourceBuilder newInstance(final List<File> files) {
 		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder();
-		builder = builder.addFiles(aFiles);
+		builder = builder.addFiles(files);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return 新規ビルダー
 	 */
-	public static ExcelDatasourceBuilder newInstance(final String aName) {
-		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder(aName);
+	public static ExcelDatasourceBuilder newInstance(final String name) {
+		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder(name);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
-	 * @param aFile Excel(xlsx)ファイル
+	 * @param name データソース名
+	 * @param file Excel(xlsx)ファイル
 	 * @return 新規ビルダー
 	 */
-	public static ExcelDatasourceBuilder newInstance(final String aName, final File aFile) {
-		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder(aName);
-		builder = builder.addFile(aFile);
+	public static ExcelDatasourceBuilder newInstance(final String name, final File file) {
+		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder(name);
+		builder = builder.addFile(file);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
-	 * @param aFiles Excel(xlsx)ファイル一覧
+	 * @param name データソース名
+	 * @param files Excel(xlsx)ファイル一覧
 	 * @return 新規ビルダー
 	 */
-	public static ExcelDatasourceBuilder newInstance(final String aName, final List<File> aFiles) {
-		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder(aName);
-		builder = builder.addFiles(aFiles);
+	public static ExcelDatasourceBuilder newInstance(final String name, final List<File> files) {
+		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder(name);
+		builder = builder.addFiles(files);
 		return builder;
 	}
 
 	/**
 	 * データソース名を設定する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return ビルダー
 	 */
-	public ExcelDatasourceBuilder setDatasourceName(final String aName) {
-		datasourceName = aName;
+	public ExcelDatasourceBuilder setDatasourceName(final String name) {
+		datasourceName = name;
 		return this;
 	}
 
 	/**
 	 * Excel(xlsx)ファイルを追加する。
 	 * 
-	 * @param aFile Excel(xlsx)ファイル
+	 * @param file Excel(xlsx)ファイル
 	 * @return ビルダー
 	 */
-	public ExcelDatasourceBuilder addFile(final File aFile) {
-		excelFiles.add(aFile);
+	public ExcelDatasourceBuilder addFile(final File file) {
+		excelFiles.add(file);
 		return this;
 	}
 
 	/**
 	 * Excel(xlsx)ファイル一覧を追加する。
 	 * 
-	 * @param aFiles Excel(xlsx)ファイル一覧
+	 * @param files Excel(xlsx)ファイル一覧
 	 * @return ビルダー
 	 */
-	public ExcelDatasourceBuilder addFiles(final Collection<File> aFiles) {
-		excelFiles.addAll(aFiles);
+	public ExcelDatasourceBuilder addFiles(final Collection<File> files) {
+		excelFiles.addAll(files);
 		return this;
 	}
 
 	/**
 	 * NULL文字列を設定する。
 	 * 
-	 * @param aString NULL文字列
+	 * @param string NULL文字列
 	 * @return ビルダー
 	 */
-	public ExcelDatasourceBuilder setNullString(final String aString) {
-		nullString = aString;
+	public ExcelDatasourceBuilder setNullString(final String string) {
+		nullString = string;
 		return this;
 	}
 
@@ -216,12 +219,10 @@ public final class ExcelDatasourceBuilder {
 	 * データソースを構築する。
 	 * 
 	 * @return データソース
-	 * @throws FileNotFoundException
 	 * @throws ParseException
-	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Datasource build() throws FileNotFoundException, ParseException, IOException {
+	public Datasource build() throws ParseException {
 		ExcelDatasource datasource = new ExcelDatasource();
 		datasource.name = datasourceName;
 
@@ -230,13 +231,13 @@ public final class ExcelDatasourceBuilder {
 			List<Table> tables = new ArrayList<>();
 
 			for (File file : excelFiles) {
-
 				stream = new FileInputStream(file);
 				XSSFWorkbook workbook = new XSSFWorkbook(stream);
+
 				int cntSheet = workbook.getNumberOfSheets();
 				for (int i = 0; i < cntSheet; i++) {
-					String sheetName = workbook.getSheetName(i); // sheet name -> table name
-
+					// sheet name -> table name
+					String sheetName = workbook.getSheetName(i);
 					ExcelTable table = new ExcelTable();
 
 					Matcher matcher = PTN_TABLE_NAME.matcher(sheetName);
@@ -252,7 +253,7 @@ public final class ExcelDatasourceBuilder {
 					// Check row size
 					int cntRow = sheet.getLastRowNum() + 1;
 					if (3 > cntRow) {
-						System.out.println("Skip sheet[" + sheetName + "]. row size < 3");
+						warn(String.format("Skip sheet[%s]. row size < 3", sheetName));
 						continue;
 					}
 
@@ -274,7 +275,7 @@ public final class ExcelDatasourceBuilder {
 							ExcelRecord record = readData(row, xssfrow, fields);
 							records.add(record);
 						} else {
-							System.out.println("Skip empty row.[table: " + table.getName() + "; row: " + row + ";]");
+							warn(String.format("Skip empty row.[table: %s; row: %d;]", table.getName(), row));
 						}
 					}
 
@@ -288,104 +289,81 @@ public final class ExcelDatasourceBuilder {
 			datasource.tables = tables;
 
 		} catch (FileNotFoundException ex) {
-			throw ex;
-		} catch (ParseException ex) {
-			throw ex;
+			fatal(ex);
+			throw new ParseException(ex.getMessage(), -1);
 		} catch (IOException ex) {
-			throw ex;
+			fatal(ex);
+			throw new ParseException(ex.getMessage(), -1);
 		} finally {
-			if (null != stream) {
-				try {
-					stream.close();
-				} catch (IOException ex) {
-				} finally {
-					stream = null;
-				}
-			}
+			release(stream);
 		}
 
 		return datasource;
 	}
-	
-	private ExcelField readField(final int aCol, final XSSFCell aLabelCell, final XSSFCell aNameCell, final XSSFCell aTypeCell) throws ParseException {
-		String label = toStringFromCell(aLabelCell);
-		String name = toStringFromCell(aNameCell);
-		String type = toStringFromCell(aTypeCell);
+
+	private ExcelField readField(final int col, final XSSFCell labelCell, final XSSFCell nameCell, final XSSFCell typeCell) throws ParseException {
+		String label = toStringFromCell(labelCell);
+		String name = toStringFromCell(nameCell);
+		String type = toStringFromCell(typeCell);
 
 		if (StringUtility.isEmpty(name)) {
-			throw new ParseException("Field name is empty.[row: 2; col: " + aCol + ";]", 2);
+			throw new ParseException(String.format("Field name is empty.[row: 1; col: %d;]", col), 1);
 		}
 		if (StringUtility.isEmpty(type)) {
-			throw new ParseException("Field type is empty.[row: 2; col: " + aCol + ";]", 2);
+			throw new ParseException(String.format("Field type is empty.[row: 2; col: %d;]", col), 2);
 		}
 
 		FieldType fieldType = FieldType.valueOfName(type.trim());
 		if (FieldType.Unknown == fieldType) {
-			throw new ParseException("Undefined type.[type: " + type + "; row: 2; col: " + aCol + ";]", 2);
+			throw new ParseException(String.format("Undefined type.[type: %s; row: 2; col: %d;]", type, col), 2);
 		}
 
 		ExcelField field = new ExcelField();
 		field.label = label;
 		field.name = name;
 		field.type = fieldType;
-		field.col = aCol;
-
+		field.col = col;
 		return field;
 	}
 
-	private ExcelRecord readData(final int aRowNum, final XSSFRow aRow, final List<ExcelField> aFields) throws ParseException {
+	private ExcelRecord readData(final int rowNum, final XSSFRow row, final List<ExcelField> fields) throws ParseException {
 		Map<String, Object> data = new HashMap<String, Object>();
-		for (int i = 0; i < aFields.size(); i++) {
-			ExcelField field = aFields.get(i);
+		for (int i = 0; i < fields.size(); i++) {
+			ExcelField field = fields.get(i);
 
 			int col = field.col;
-			XSSFCell cell = aRow.getCell(col);
+			XSSFCell cell = row.getCell(col);
 
 			String value = toStringFromCell(cell);
 
+			Object obj = null;
 			if (nullString.equals(value)) {
-				data.put(field.name, null);
 			} else {
 				if (FieldType.String == field.type) {
-					String obj = value;
-					data.put(field.name, obj);
+					obj = value;
 				} else if (FieldType.Boolean == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Boolean obj = Boolean.parseBoolean(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Boolean.parseBoolean(value);
 					}
 				} else if (FieldType.Integer == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, Integer.valueOf(obj.intValue()));
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = Integer.valueOf(dbl.intValue());
 					}
 				} else if (FieldType.Long == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, Long.valueOf(obj.longValue()));
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = Long.valueOf(dbl.longValue());
 					}
 				} else if (FieldType.Float == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Float obj = Float.parseFloat(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Float.parseFloat(value);
 					}
 				} else if (FieldType.Double == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Double.parseDouble(value);
 					}
 				} else if (FieldType.Timestamp == field.type) {
-					Timestamp obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
 							obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
@@ -393,9 +371,7 @@ public final class ExcelDatasourceBuilder {
 							obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
 						}
 					}
-					data.put(field.name, obj);
 				} else if (FieldType.Date == field.type) {
-					Date obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						Timestamp ts = null;
 						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
@@ -405,9 +381,7 @@ public final class ExcelDatasourceBuilder {
 						}
 						obj = new Date(ts.getTime());
 					}
-					data.put(field.name, obj);
 				} else if (FieldType.Time == field.type) {
-					Time obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						Timestamp ts = null;
 						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
@@ -417,11 +391,12 @@ public final class ExcelDatasourceBuilder {
 						}
 						obj = new Time(ts.getTime());
 					}
-					data.put(field.name, obj);
 				} else {
-					throw new ParseException("Undefined type.[" + field.getType() + "]", aRowNum);
+					throw new ParseException(String.format("Undefined type.[%s]", field.getType()), rowNum);
 				}
 			}
+
+			data.put(field.name, obj);
 		}
 
 		ExcelRecord record = new ExcelRecord();
@@ -429,9 +404,9 @@ public final class ExcelDatasourceBuilder {
 		return record;
 	}
 
-	private boolean isEmptyRow(final XSSFRow aRow) {
-		for (int col = 0; col < aRow.getLastCellNum(); col++) {
-			XSSFCell cell = aRow.getCell(col);
+	private boolean isEmptyRow(final XSSFRow row) {
+		for (int col = 0; col < row.getLastCellNum(); col++) {
+			XSSFCell cell = row.getCell(col);
 			String value = toStringFromCell(cell);
 			if (0 < value.length()) {
 				return false;
@@ -440,30 +415,30 @@ public final class ExcelDatasourceBuilder {
 		return true;
 	}
 
-	private String toStringFromCell(final Cell aCell) { // データ型毎の読み取り
+	private String toStringFromCell(final Cell cell) { // データ型毎の読み取り
 		String string = "";
 
-		if (null != aCell) {
-			switch (aCell.getCellType()) {
+		if (null != cell) {
+			switch (cell.getCellType()) {
 			case Cell.CELL_TYPE_BLANK:
 				break;
 			case Cell.CELL_TYPE_BOOLEAN:
-				string = Boolean.toString(aCell.getBooleanCellValue());
+				string = Boolean.toString(cell.getBooleanCellValue());
 				break;
 			case Cell.CELL_TYPE_FORMULA:
-				string = aCell.getCellFormula();
+				string = cell.getCellFormula();
 				// string = cell.getStringCellValue();(※）
 				break;
 			case Cell.CELL_TYPE_NUMERIC:
-				if (DateUtil.isCellDateFormatted(aCell)) {
-					java.util.Date dt = aCell.getDateCellValue();
+				if (DateUtil.isCellDateFormatted(cell)) {
+					java.util.Date dt = cell.getDateCellValue();
 					string = (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")).format(dt);
 				} else {
-					string = Double.toString(aCell.getNumericCellValue());
+					string = Double.toString(cell.getNumericCellValue());
 				}
 				break;
 			case Cell.CELL_TYPE_STRING: {
-				string = aCell.getStringCellValue();
+				string = cell.getStringCellValue();
 				break;
 			}
 			case Cell.CELL_TYPE_ERROR: {
@@ -472,6 +447,20 @@ public final class ExcelDatasourceBuilder {
 			}
 		}
 		return string;
+	}
+
+	/**
+	 * ストリームを解放する。
+	 * 
+	 * @param stream ストリーム
+	 */
+	private void release(final InputStream stream) {
+		try {
+			if (null != stream) {
+				stream.close();
+			}
+		} catch (IOException ex) {
+		}
 	}
 
 	/**

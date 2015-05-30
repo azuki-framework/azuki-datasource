@@ -3,6 +3,7 @@ package org.azkfw.datasource.csv;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -18,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.azkfw.datasource.Datasource;
+import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -32,7 +34,7 @@ import org.azkfw.util.StringUtility;
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
  */
-public final class CsvDatasourceBuilder {
+public final class CsvDatasourceBuilder extends DatasourceBuilder {
 
 	/**
 	 * デフォルトのNULL文字列
@@ -60,6 +62,7 @@ public final class CsvDatasourceBuilder {
 	 * コンストラクタ
 	 */
 	private CsvDatasourceBuilder() {
+		super(CsvDatasourceBuilder.class);
 		datasourceName = null;
 		nullString = DEFAULT_NULL_STRING;
 		charset = null;
@@ -69,10 +72,11 @@ public final class CsvDatasourceBuilder {
 	/**
 	 * コンストラクタ
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 */
-	private CsvDatasourceBuilder(final String aName) {
-		datasourceName = aName;
+	private CsvDatasourceBuilder(final String name) {
+		super(CsvDatasourceBuilder.class);
+		datasourceName = name;
 		nullString = DEFAULT_NULL_STRING;
 		charset = null;
 		csvFiles = new ArrayList<File>();
@@ -91,127 +95,127 @@ public final class CsvDatasourceBuilder {
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aFile CSVファイル
+	 * @param file CSVファイル
 	 * @return 新規ビルダー
 	 */
-	public static CsvDatasourceBuilder newInstance(final File aFile) {
+	public static CsvDatasourceBuilder newInstance(final File file) {
 		CsvDatasourceBuilder builder = new CsvDatasourceBuilder();
-		builder = builder.addFile(aFile);
+		builder = builder.addFile(file);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aFiles CSVファイル一覧
+	 * @param files CSVファイル一覧
 	 * @return 新規ビルダー
 	 */
-	public static CsvDatasourceBuilder newInstance(final List<File> aFiles) {
+	public static CsvDatasourceBuilder newInstance(final List<File> files) {
 		CsvDatasourceBuilder builder = new CsvDatasourceBuilder();
-		builder = builder.addFiles(aFiles);
+		builder = builder.addFiles(files);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return 新規ビルダー
 	 */
-	public static CsvDatasourceBuilder newInstance(final String aName) {
-		CsvDatasourceBuilder builder = new CsvDatasourceBuilder(aName);
+	public static CsvDatasourceBuilder newInstance(final String name) {
+		CsvDatasourceBuilder builder = new CsvDatasourceBuilder(name);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
-	 * @param aFile CSVファイル
+	 * @param name データソース名
+	 * @param file CSVファイル
 	 * @return 新規ビルダー
 	 */
-	public static CsvDatasourceBuilder newInstance(final String aName, final File aFile) {
-		CsvDatasourceBuilder builder = new CsvDatasourceBuilder(aName);
-		builder = builder.addFile(aFile);
+	public static CsvDatasourceBuilder newInstance(final String name, final File file) {
+		CsvDatasourceBuilder builder = new CsvDatasourceBuilder(name);
+		builder = builder.addFile(file);
 		return builder;
 	}
 
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
-	 * @param aFiles CSVファイル一覧
+	 * @param name データソース名
+	 * @param files CSVファイル一覧
 	 * @return 新規ビルダー
 	 */
-	public static CsvDatasourceBuilder newInstance(final String aName, final List<File> aFiles) {
-		CsvDatasourceBuilder builder = new CsvDatasourceBuilder(aName);
-		builder = builder.addFiles(aFiles);
+	public static CsvDatasourceBuilder newInstance(final String name, final List<File> files) {
+		CsvDatasourceBuilder builder = new CsvDatasourceBuilder(name);
+		builder = builder.addFiles(files);
 		return builder;
 	}
 
 	/**
 	 * データソース名を設定する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return ビルダー
 	 */
-	public CsvDatasourceBuilder setDatasourceName(final String aName) {
-		datasourceName = aName;
+	public CsvDatasourceBuilder setDatasourceName(final String name) {
+		datasourceName = name;
 		return this;
 	}
 
 	/**
 	 * CSVファイルを追加する。
 	 * 
-	 * @param aFile CSVファイル
+	 * @param file CSVファイル
 	 * @return ビルダー
 	 */
-	public CsvDatasourceBuilder addFile(final File aFile) {
-		csvFiles.add(aFile);
+	public CsvDatasourceBuilder addFile(final File file) {
+		csvFiles.add(file);
 		return this;
 	}
 
 	/**
 	 * CSVファイル一覧を追加する。
 	 * 
-	 * @param aFiles CSVファイル一覧
+	 * @param files CSVファイル一覧
 	 * @return ビルダー
 	 */
-	public CsvDatasourceBuilder addFiles(final Collection<File> aFiles) {
-		csvFiles.addAll(aFiles);
+	public CsvDatasourceBuilder addFiles(final Collection<File> files) {
+		csvFiles.addAll(files);
 		return this;
 	}
 
 	/**
 	 * CSVファイルの文字コードを設定する。
 	 * 
-	 * @param aCharset 文字コード
+	 * @param charset 文字コード
 	 * @return ビルダー
 	 */
-	public CsvDatasourceBuilder setCharset(final Charset aCharset) {
-		charset = aCharset;
+	public CsvDatasourceBuilder setCharset(final Charset charset) {
+		this.charset = charset;
 		return this;
 	}
 
 	/**
 	 * CSVファイルの文字コードを設定する。
 	 * 
-	 * @param aCharsetName 文字コード名
+	 * @param charsetName 文字コード名
 	 * @return ビルダー
 	 */
-	public CsvDatasourceBuilder setCharset(final String aCharsetName) {
-		charset = Charset.forName(aCharsetName);
+	public CsvDatasourceBuilder setCharset(final String charsetName) {
+		charset = Charset.forName(charsetName);
 		return this;
 	}
 
 	/**
 	 * NULL文字列を設定する。
 	 * 
-	 * @param aString NULL文字列
+	 * @param string NULL文字列
 	 * @return ビルダー
 	 */
-	public CsvDatasourceBuilder setNullString(final String aString) {
-		nullString = aString;
+	public CsvDatasourceBuilder setNullString(final String string) {
+		nullString = string;
 		return this;
 	}
 
@@ -219,12 +223,10 @@ public final class CsvDatasourceBuilder {
 	 * データソースを構築する。
 	 * 
 	 * @return データソース
-	 * @throws FileNotFoundException
 	 * @throws ParseException
-	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Datasource build() throws FileNotFoundException, ParseException, IOException {
+	public Datasource build() throws ParseException {
 		CsvDatasource datasource = new CsvDatasource();
 		datasource.name = datasourceName;
 
@@ -269,14 +271,13 @@ public final class CsvDatasourceBuilder {
 						CsvRecord record = readData(row, buffer, fields);
 						records.add(record);
 					} else {
-						System.out.println("Skip row(unmatch field count).[table: " + table.getName() + "; row: " + row + ";]");
+						warn(String.format("Skip row(unmatch field count).[table: %s; row: %d;]", table.getName(), row));
 					}
 					row++;
 				}
 
 				table.fields = (List) fields;
 				table.records = (List) records;
-
 				tables.add(table);
 
 				reader.close();
@@ -286,120 +287,132 @@ public final class CsvDatasourceBuilder {
 			datasource.tables = (List) tables;
 
 		} catch (FileNotFoundException ex) {
-			throw ex;
+			fatal(ex);
+			throw new ParseException(ex.getMessage(), -1);
+		} catch (IOException ex) {
+			fatal(ex);
+			throw new ParseException(ex.getMessage(), -1);
 		} finally {
-			if (null != reader) {
-				try {
-					reader.close();
-				} catch (IOException ex) {
-
-				} finally {
-					reader = null;
-				}
-			}
+			release(reader);
 		}
-
 		return datasource;
 	}
 
-	private CsvField readField(final int aCol, final String aLabel, final String aName, final String aType) throws ParseException {
-		if (StringUtility.isEmpty(aName)) {
-			throw new ParseException("Field name is empty.[row: 2; col: " + aCol + ";]", 2);
+	/**
+	 * フィールド情報を読み込む。
+	 * 
+	 * @param col 列番号(0始まり)
+	 * @param label ラベル名
+	 * @param name フィールド名
+	 * @param type フィールドタイプ
+	 * @return フィールド情報
+	 * @throws ParseException
+	 */
+	private CsvField readField(final int col, final String label, final String name, final String type) throws ParseException {
+		if (StringUtility.isEmpty(name)) {
+			throw new ParseException(String.format("Field name is empty.[row: 1; col: %d;]", col), 1);
 		}
-		if (StringUtility.isEmpty(aType)) {
-			throw new ParseException("Field type is empty.[row: 2; col: " + aCol + ";]", 2);
+		if (StringUtility.isEmpty(type)) {
+			throw new ParseException(String.format("Field type is empty.[row: 2; col: %d;]", col), 2);
 		}
 
-		FieldType fieldType = FieldType.valueOfName(aType.trim());
+		FieldType fieldType = FieldType.valueOfName(type.trim());
 		if (FieldType.Unknown == fieldType) {
-			throw new ParseException("Undefined type.[row: 2; col: " + aCol + ";]", 2);
+			throw new ParseException(String.format("Undefined type.[type: %s; row: 2; col: %d;]", type, col), 2);
 		}
 
 		CsvField field = new CsvField();
-		field.label = aLabel;
-		field.name = aName;
+		field.label = label;
+		field.name = name;
 		field.type = fieldType;
-
 		return field;
 	}
 
-	private CsvRecord readData(final int aRowNum, final List<String> aBuffer, final List<CsvField> aFields) throws ParseException {
+	/**
+	 * レコード情報を読み込む。
+	 * 
+	 * @param rowNum 行番号(0始まり)
+	 * @param buffer データ
+	 * @param fields フィールド情報
+	 * @return レコード情報
+	 * @throws ParseException
+	 */
+	private CsvRecord readData(final int rowNum, final List<String> buffer, final List<CsvField> fields) throws ParseException {
 		Map<String, Object> data = new HashMap<String, Object>();
-		for (int i = 0; i < aFields.size(); i++) {
-			CsvField field = aFields.get(i);
+		for (int i = 0; i < fields.size(); i++) {
+			CsvField field = fields.get(i);
 
-			String value = aBuffer.get(i);
+			String value = buffer.get(i);
 
+			Object obj = null;
 			if (null != nullString && nullString.equals(value)) {
-				data.put(field.name, null);
 			} else {
 				if (FieldType.String == field.type) {
-					String obj = value;
-					data.put(field.name, obj);
+					obj = value;
 				} else if (FieldType.Boolean == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Boolean obj = Boolean.parseBoolean(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						obj = Boolean.parseBoolean(value);
 					}
 				} else if (FieldType.Integer == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, Integer.valueOf(obj.intValue()));
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = Integer.valueOf(dbl.intValue());
 					}
 				} else if (FieldType.Long == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, Long.valueOf(obj.longValue()));
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = Long.valueOf(dbl.longValue());
 					}
 				} else if (FieldType.Float == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Float obj = Float.parseFloat(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						Float flt = Float.parseFloat(value);
+						obj = flt;
 					}
 				} else if (FieldType.Double == field.type) {
 					if (StringUtility.isNotEmpty(value)) {
-						Double obj = Double.parseDouble(value);
-						data.put(field.name, obj);
-					} else {
-						data.put(field.name, null);
+						Double dbl = Double.parseDouble(value);
+						obj = dbl;
 					}
 				} else if (FieldType.Timestamp == field.type) {
-					Timestamp obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						obj = new Timestamp(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(value).getTime());
 					}
-					data.put(field.name, obj);
 				} else if (FieldType.Date == field.type) {
-					Date obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						Timestamp ts = new Timestamp(new SimpleDateFormat("yyyy/MM/dd").parse(value).getTime());
 						obj = new Date(ts.getTime());
 					}
-					data.put(field.name, obj);
 				} else if (FieldType.Time == field.type) {
-					Time obj = null;
 					if (StringUtility.isNotEmpty(value)) {
 						Timestamp ts = new Timestamp(new SimpleDateFormat("HH:mm:ss").parse(value).getTime());
 						obj = new Time(ts.getTime());
 					}
-					data.put(field.name, obj);
 				} else {
-					throw new ParseException("Undefined type.[" + field.getType() + "]", aRowNum);
+					throw new ParseException(String.format("Undefined type.[%s]", field.getType()), rowNum);
 				}
 			}
+
+			data.put(field.name, obj);
 		}
 
 		CsvRecord record = new CsvRecord();
 		record.data = data;
 		return record;
+	}
+
+	/**
+	 * リーダーを解放する。
+	 * 
+	 * @param reader リーダー
+	 */
+	private void release(final Reader reader) {
+		try {
+			if (null != reader) {
+				reader.close();
+			}
+		} catch (IOException ex) {
+			warn("Reader close error.", ex);
+		}
 	}
 
 	/**
@@ -461,7 +474,7 @@ public final class CsvDatasourceBuilder {
 		}
 
 	}
-	
+
 	/**
 	 * このクラスは、CSVファイル用のフィールド情報を保持するクラスです。
 	 * 
