@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.digester3.Digester;
+import org.azkfw.datasource.AbstractTextDatasourceBuilder;
 import org.azkfw.datasource.Datasource;
-import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -50,17 +50,8 @@ import org.xml.sax.SAXException;
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
  */
-public final class XmlDatasourceBuilder extends DatasourceBuilder {
+public final class XmlDatasourceBuilder extends AbstractTextDatasourceBuilder {
 
-	/**
-	 * デフォルトのNULL文字列
-	 */
-	private static final String DEFAULT_NULL_STRING = "(NULL)";
-
-	/** データソース名 */
-	private String datasourceName;
-	/** NULL文字列 */
-	private String nullString;
 	/** XMLファイル一覧 */
 	private List<File> xmlFiles;
 
@@ -69,8 +60,6 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private XmlDatasourceBuilder() {
 		super(XmlDatasourceBuilder.class);
-		datasourceName = null;
-		nullString = DEFAULT_NULL_STRING;
 		xmlFiles = new ArrayList<File>();
 	}
 
@@ -81,8 +70,7 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private XmlDatasourceBuilder(final String name) {
 		super(XmlDatasourceBuilder.class);
-		datasourceName = name;
-		nullString = DEFAULT_NULL_STRING;
+		setName(name);
 		xmlFiles = new ArrayList<File>();
 	}
 
@@ -158,17 +146,6 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 	}
 
 	/**
-	 * データソース名を設定する。
-	 * 
-	 * @param name データソース名
-	 * @return ビルダー
-	 */
-	public XmlDatasourceBuilder setDatasourceName(final String name) {
-		datasourceName = name;
-		return this;
-	}
-
-	/**
 	 * XMLファイルを追加する。
 	 * 
 	 * @param file XMLファイル
@@ -191,17 +168,6 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 	}
 
 	/**
-	 * NULL文字列を設定する。
-	 * 
-	 * @param string NULL文字列
-	 * @return ビルダー
-	 */
-	public XmlDatasourceBuilder setNullString(final String string) {
-		nullString = string;
-		return this;
-	}
-
-	/**
 	 * データソースを構築する。
 	 * 
 	 * @return データソース
@@ -212,7 +178,7 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Datasource build() throws ParseException {
 		XmlDatasource datasource = new XmlDatasource();
-		datasource.name = datasourceName;
+		datasource.name = getName();
 
 		InputStream stream = null;
 		try {
@@ -258,7 +224,7 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 					List<XmlField> fields = new ArrayList<XmlField>();
 					for (int col = 0; col < t.fields.size(); col++) {
 						XmlFieldEntity f = t.fields.get(col);
-						XmlField field = readField(col, f);
+						XmlField field = readField(col, f.label, f.name, f.type);
 						fields.add(field);
 					}
 
@@ -304,22 +270,22 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 	 * @return フィールド情報
 	 * @throws ParseException
 	 */
-	private XmlField readField(final int col, final XmlFieldEntity entity) throws ParseException {
-		if (StringUtility.isEmpty(entity.name)) {
+	private XmlField readField(final int col, final String label, final String name, final String type) throws ParseException {
+		if (StringUtility.isEmpty(name)) {
 			throw new ParseException(String.format("Field name is empty.[col: %d;]", col), -1);
 		}
-		if (StringUtility.isEmpty(entity.type)) {
+		if (StringUtility.isEmpty(type)) {
 			throw new ParseException(String.format("Field type is empty.[col: %d;]", col), -1);
 		}
 
-		FieldType fieldType = FieldType.valueOfName(entity.type.trim());
+		FieldType fieldType = FieldType.valueOfName(type.trim());
 		if (FieldType.Unknown == fieldType) {
-			throw new ParseException(String.format("Undefined type.[type: %s; col: %d;]", entity.type, col), -1);
+			throw new ParseException(String.format("Undefined type.[type: %s; col: %d;]", type, col), -1);
 		}
 
 		XmlField field = new XmlField();
-		field.label = entity.label;
-		field.name = entity.name;
+		field.label = label;
+		field.name = name;
 		field.type = fieldType;
 		return field;
 	}
@@ -333,8 +299,7 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 			String value = d.value;
 
 			Object obj = null;
-			if (nullString.equals(value)) {
-			} else {
+			if (!isNullString(value)) {
 				if (FieldType.String == field.type) {
 					obj = value;
 				} else if (FieldType.Boolean == field.type) {
@@ -384,21 +349,6 @@ public final class XmlDatasourceBuilder extends DatasourceBuilder {
 		XmlRecord record = new XmlRecord();
 		record.data = data;
 		return record;
-	}
-
-	/**
-	 * ストリームを解放する。
-	 * 
-	 * @param stream ストリーム
-	 */
-	private void release(final InputStream stream) {
-		try {
-			if (null != stream) {
-				stream.close();
-			}
-		} catch (IOException ex) {
-			warn("Strem close error.", ex);
-		}
 	}
 
 	/**

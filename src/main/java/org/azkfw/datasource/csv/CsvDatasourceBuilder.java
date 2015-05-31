@@ -3,7 +3,6 @@ package org.azkfw.datasource.csv;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -18,8 +17,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.azkfw.datasource.AbstractTextDatasourceBuilder;
 import org.azkfw.datasource.Datasource;
-import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -34,12 +33,7 @@ import org.azkfw.util.StringUtility;
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
  */
-public final class CsvDatasourceBuilder extends DatasourceBuilder {
-
-	/**
-	 * デフォルトのNULL文字列
-	 */
-	private static final String DEFAULT_NULL_STRING = "(NULL)";
+public final class CsvDatasourceBuilder extends AbstractTextDatasourceBuilder {
 
 	/**
 	 * テーブル名称取得パターン
@@ -49,10 +43,6 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private static final Pattern PTN_FILE_NAME = Pattern.compile("^(.+?)(\\((.*?){1}\\).*?){0,1}\\..*?$");
 
-	/** データソース名 */
-	private String datasourceName;
-	/** NULL文字列 */
-	private String nullString;
 	/** CSVファイル文字コード */
 	private Charset charset;
 	/** CSVファイル一覧 */
@@ -63,8 +53,6 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private CsvDatasourceBuilder() {
 		super(CsvDatasourceBuilder.class);
-		datasourceName = null;
-		nullString = DEFAULT_NULL_STRING;
 		charset = null;
 		csvFiles = new ArrayList<File>();
 	}
@@ -76,8 +64,7 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private CsvDatasourceBuilder(final String name) {
 		super(CsvDatasourceBuilder.class);
-		datasourceName = name;
-		nullString = DEFAULT_NULL_STRING;
+		setName(name);
 		charset = null;
 		csvFiles = new ArrayList<File>();
 	}
@@ -154,17 +141,6 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 	}
 
 	/**
-	 * データソース名を設定する。
-	 * 
-	 * @param name データソース名
-	 * @return ビルダー
-	 */
-	public CsvDatasourceBuilder setDatasourceName(final String name) {
-		datasourceName = name;
-		return this;
-	}
-
-	/**
 	 * CSVファイルを追加する。
 	 * 
 	 * @param file CSVファイル
@@ -209,17 +185,6 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 	}
 
 	/**
-	 * NULL文字列を設定する。
-	 * 
-	 * @param string NULL文字列
-	 * @return ビルダー
-	 */
-	public CsvDatasourceBuilder setNullString(final String string) {
-		nullString = string;
-		return this;
-	}
-
-	/**
 	 * データソースを構築する。
 	 * 
 	 * @return データソース
@@ -228,7 +193,7 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Datasource build() throws ParseException {
 		CsvDatasource datasource = new CsvDatasource();
-		datasource.name = datasourceName;
+		datasource.name = getName();
 
 		CsvBufferedReader reader = null;
 		try {
@@ -345,8 +310,7 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 			String value = buffer.get(i);
 
 			Object obj = null;
-			if (null != nullString && nullString.equals(value)) {
-			} else {
+			if (!isNullString(value)) {
 				if (FieldType.String == field.type) {
 					obj = value;
 				} else if (FieldType.Boolean == field.type) {
@@ -398,21 +362,6 @@ public final class CsvDatasourceBuilder extends DatasourceBuilder {
 		CsvRecord record = new CsvRecord();
 		record.data = data;
 		return record;
-	}
-
-	/**
-	 * リーダーを解放する。
-	 * 
-	 * @param reader リーダー
-	 */
-	private void release(final Reader reader) {
-		try {
-			if (null != reader) {
-				reader.close();
-			}
-		} catch (IOException ex) {
-			warn("Reader close error.", ex);
-		}
 	}
 
 	/**

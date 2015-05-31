@@ -43,7 +43,7 @@ import org.azkfw.datasource.Table;
 public final class ExcelDatasourceUtility {
 
 	public static boolean write(final Datasource datasource, final File file) {
-		
+
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		write(datasource, workbook);
 		OutputStream stream = null;
@@ -53,45 +53,48 @@ public final class ExcelDatasourceUtility {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
-			try {
-				stream.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
+			release(stream);
 		}
 		return true;
 	}
-	
+
 	private static void write(final Datasource datasource, final XSSFWorkbook workbook) {
 		for (Table table : datasource.getTables()) {
 			XSSFSheet sheet = workbook.createSheet(table.getName());
 			write(table, sheet);
 		}
 	}
-	
+
 	private static void write(final Table table, final XSSFSheet sheet) {
 		XSSFRow rowLabel = sheet.createRow(0);
 		XSSFRow rowName = sheet.createRow(1);
 		XSSFRow rowType = sheet.createRow(2);
-		
+
 		XSSFCell cell = null;
 		List<Field> fields = table.getFields();
-		for (int col = 0 ; col < fields.size() ; col++) {
+		for (int col = 0; col < fields.size(); col++) {
 			Field field = fields.get(col);
-			
+
+			// Label
+			cell = rowLabel.createCell(col);
+			cell.setCellValue(field.getName());
+			// Name
 			cell = rowName.createCell(col);
 			cell.setCellValue(field.getName());
+			// Type
+			cell = rowType.createCell(col);
+			cell.setCellValue(field.getType().getName());
 		}
-		
+
 		XSSFRow rowRecord = null;
 		List<Record> records = table.getRecords();
-		for (int row = 0 ; row < records.size() ; row++ ) {
-			rowRecord = sheet.createRow(row+3);
+		for (int row = 0; row < records.size(); row++) {
+			rowRecord = sheet.createRow(row + 3);
 			Record record = records.get(row);
-			for (int col = 0 ; col < fields.size() ; col++) {
+			for (int col = 0; col < fields.size(); col++) {
 				Field field = fields.get(col);
 				Object value = record.get(field.getName());
-				
+
 				cell = rowRecord.createCell(col);
 				if (null == value) {
 					cell.setCellValue("(NULL)");
@@ -102,4 +105,13 @@ public final class ExcelDatasourceUtility {
 		}
 	}
 
+	private static void release(final OutputStream stream) {
+		try {
+			if (null != stream) {
+				stream.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
 }

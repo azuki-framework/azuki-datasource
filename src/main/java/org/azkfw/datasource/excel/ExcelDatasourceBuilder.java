@@ -41,8 +41,8 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.azkfw.datasource.AbstractTextDatasourceBuilder;
 import org.azkfw.datasource.Datasource;
-import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -56,12 +56,7 @@ import org.azkfw.util.StringUtility;
  * @version 1.0.0 2014/07/31
  * @author Kawakicchi
  */
-public final class ExcelDatasourceBuilder extends DatasourceBuilder {
-
-	/**
-	 * デフォルトのNULL文字列
-	 */
-	private static final String DEFAULT_NULL_STRING = "(NULL)";
+public final class ExcelDatasourceBuilder extends AbstractTextDatasourceBuilder {
 
 	/**
 	 * テーブル名称取得パターン
@@ -71,10 +66,6 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private static final Pattern PTN_TABLE_NAME = Pattern.compile("^(.+?)(\\((.*?){1}\\).*?){0,1}$");
 
-	/** データソース名 */
-	private String datasourceName;
-	/** NULL文字列 */
-	private String nullString;
 	/** Excelファイル一覧 */
 	private List<File> excelFiles;
 
@@ -83,8 +74,6 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private ExcelDatasourceBuilder() {
 		super(ExcelDatasourceBuilder.class);
-		datasourceName = null;
-		nullString = DEFAULT_NULL_STRING;
 		excelFiles = new ArrayList<File>();
 	}
 
@@ -95,8 +84,7 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 	 */
 	private ExcelDatasourceBuilder(final String name) {
 		super(ExcelDatasourceBuilder.class);
-		datasourceName = name;
-		nullString = DEFAULT_NULL_STRING;
+		setName(name);
 		excelFiles = new ArrayList<File>();
 	}
 
@@ -172,17 +160,6 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 	}
 
 	/**
-	 * データソース名を設定する。
-	 * 
-	 * @param name データソース名
-	 * @return ビルダー
-	 */
-	public ExcelDatasourceBuilder setDatasourceName(final String name) {
-		datasourceName = name;
-		return this;
-	}
-
-	/**
 	 * Excel(xlsx)ファイルを追加する。
 	 * 
 	 * @param file Excel(xlsx)ファイル
@@ -205,17 +182,6 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 	}
 
 	/**
-	 * NULL文字列を設定する。
-	 * 
-	 * @param string NULL文字列
-	 * @return ビルダー
-	 */
-	public ExcelDatasourceBuilder setNullString(final String string) {
-		nullString = string;
-		return this;
-	}
-
-	/**
 	 * データソースを構築する。
 	 * 
 	 * @return データソース
@@ -224,7 +190,7 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Datasource build() throws ParseException {
 		ExcelDatasource datasource = new ExcelDatasource();
-		datasource.name = datasourceName;
+		datasource.name = getName();
 
 		InputStream stream = null;
 		try {
@@ -261,9 +227,13 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 					List<ExcelField> fields = new ArrayList<ExcelField>();
 					XSSFRow rowLabel = sheet.getRow(0);
 					XSSFRow rowName = sheet.getRow(1);
-					XSSFRow rowType = sheet.getRow(2);
+					XSSFRow rowType = sheet.getRow(2);					
+					
 					for (int col = 0; col < rowLabel.getLastCellNum(); col++) {
-						ExcelField field = readField(col, rowLabel.getCell(col), rowName.getCell(col), rowType.getCell(col));
+						String label = toStringFromCell(rowLabel.getCell(col));
+						String name = toStringFromCell(rowName.getCell(col));
+						String type = toStringFromCell(rowType.getCell(col));
+						ExcelField field = readField(col, label, name, type);
 						fields.add(field);
 					}
 
@@ -301,11 +271,7 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 		return datasource;
 	}
 
-	private ExcelField readField(final int col, final XSSFCell labelCell, final XSSFCell nameCell, final XSSFCell typeCell) throws ParseException {
-		String label = toStringFromCell(labelCell);
-		String name = toStringFromCell(nameCell);
-		String type = toStringFromCell(typeCell);
-
+	private ExcelField readField(final int col, final String label, final String name, final String type) throws ParseException {
 		if (StringUtility.isEmpty(name)) {
 			throw new ParseException(String.format("Field name is empty.[row: 1; col: %d;]", col), 1);
 		}
@@ -337,8 +303,7 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 			String value = toStringFromCell(cell);
 
 			Object obj = null;
-			if (nullString.equals(value)) {
-			} else {
+			if (!isNullString(value)) {
 				if (FieldType.String == field.type) {
 					obj = value;
 				} else if (FieldType.Boolean == field.type) {
@@ -447,20 +412,6 @@ public final class ExcelDatasourceBuilder extends DatasourceBuilder {
 			}
 		}
 		return string;
-	}
-
-	/**
-	 * ストリームを解放する。
-	 * 
-	 * @param stream ストリーム
-	 */
-	private void release(final InputStream stream) {
-		try {
-			if (null != stream) {
-				stream.close();
-			}
-		} catch (IOException ex) {
-		}
 	}
 
 	/**

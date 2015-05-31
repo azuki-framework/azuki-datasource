@@ -24,14 +24,36 @@ import org.azkfw.lang.LoggingObject;
  * 
  * @author Kawakicchi
  */
-public class DatasourceBuilder extends LoggingObject {
+public class AbstractDatasourceBuilder extends LoggingObject {
+
+	/** データソース名 */
+	private String name;
 
 	/**
 	 * コンストラクタ
 	 * 
 	 * @param clazz クラス
 	 */
-	protected DatasourceBuilder(final Class<?> clazz) {
+	protected AbstractDatasourceBuilder(final Class<?> clazz) {
 		super(clazz);
+		name = null;
+	}
+
+	/**
+	 * データソース名を設定する。
+	 * 
+	 * @param name データソース名
+	 */
+	public final void setName(final String name) {
+		this.name = name;
+	}
+
+	/**
+	 * データソース名を取得する。
+	 * 
+	 * @return データソース名
+	 */
+	public final String getName() {
+		return name;
 	}
 }

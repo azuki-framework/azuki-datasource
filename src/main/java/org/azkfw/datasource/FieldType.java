@@ -42,6 +42,8 @@ public enum FieldType {
 	Float(12, "FLOAT"),
 	/** Double */
 	Double(13, "DOUBLE"),
+	/** Numeric */
+	Numeric(14, "NUMERIC"),
 
 	/** Timestamp */
 	Timestamp(20, "TIMESTAMP"),
@@ -117,7 +119,7 @@ public enum FieldType {
 			if ("VARCHAR2".equals(name)) {
 				return String;
 			} else if("NUMBER".equals(name)) {
-				return Long;
+				return Numeric;
 			}
 		}
 		return type;

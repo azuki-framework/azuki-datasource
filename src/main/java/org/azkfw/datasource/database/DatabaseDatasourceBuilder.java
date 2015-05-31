@@ -19,7 +19,6 @@ package org.azkfw.datasource.database;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -31,8 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.azkfw.datasource.AbstractDatabaseDatasourceBuilder;
 import org.azkfw.datasource.Datasource;
-import org.azkfw.datasource.DatasourceBuilder;
 import org.azkfw.datasource.Field;
 import org.azkfw.datasource.FieldType;
 import org.azkfw.datasource.Record;
@@ -46,39 +45,27 @@ import org.azkfw.util.StringUtility;
  * @version 1.0.0 2014/08/01
  * @author Kawakicchi
  */
-public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
+public final class DatabaseDatasourceBuilder extends AbstractDatabaseDatasourceBuilder {
 
-	/** データソース名 */
-	private String datasourceName;
 	/** テーブル名一覧 */
 	private List<String> tableNames;
-
-	/** データベースドライバ */
-	private String databaseDriver;
-	/** データーベースURL */
-	private String databaseUrl;
-	/** データベースユーザ名 */
-	private String databaseUser;
-	/** データベースパスワード */
-	private String databasePassword;
 
 	/**
 	 * コンストラクタ
 	 */
 	private DatabaseDatasourceBuilder() {
 		super(DatabaseDatasourceBuilder.class);
-		datasourceName = null;
 		tableNames = new ArrayList<String>();
 	}
 
 	/**
 	 * コンストラクタ
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 */
-	private DatabaseDatasourceBuilder(final String aName) {
+	private DatabaseDatasourceBuilder(final String name) {
 		super(DatabaseDatasourceBuilder.class);
-		datasourceName = aName;
+		setName(name);
 		tableNames = new ArrayList<String>();
 	}
 
@@ -95,40 +82,12 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 	/**
 	 * ビルダーを新規作成する。
 	 * 
-	 * @param aName データソース名
+	 * @param name データソース名
 	 * @return 新規ビルダー
 	 */
-	public static DatabaseDatasourceBuilder newInstance(final String aName) {
-		DatabaseDatasourceBuilder builder = new DatabaseDatasourceBuilder(aName);
+	public static DatabaseDatasourceBuilder newInstance(final String name) {
+		DatabaseDatasourceBuilder builder = new DatabaseDatasourceBuilder(name);
 		return builder;
-	}
-
-	/**
-	 * データソース名を設定する。
-	 * 
-	 * @param name データソース名
-	 * @return ビルダー
-	 */
-	public DatabaseDatasourceBuilder setDatasourceName(final String name) {
-		datasourceName = name;
-		return this;
-	}
-
-	/**
-	 * データベース情報を設定する。
-	 * 
-	 * @param driver ドライバ
-	 * @param url URL
-	 * @param user ユーザ
-	 * @param password パスワード
-	 * @return ビルダー
-	 */
-	public DatabaseDatasourceBuilder setDatabase(final String driver, final String url, final String user, final String password) {
-		databaseDriver = driver;
-		databaseUrl = url;
-		databaseUser = user;
-		databasePassword = password;
-		return this;
 	}
 
 	/**
@@ -164,7 +123,7 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Datasource build() throws ParseException {
 		DatabaseDatasource datasource = new DatabaseDatasource();
-		datasource.name = datasourceName;
+		datasource.name = getName();
 
 		Connection connection = null;
 		Statement st = null;
@@ -172,9 +131,7 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 		try {
 			List<DatabaseTable> tables = new ArrayList<DatabaseTable>();
 
-			Class.forName(databaseDriver);
-			connection = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword);
-
+			connection = createConnection();
 			st = connection.createStatement();
 
 			for (String tableName : tableNames) {
@@ -273,9 +230,11 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 		case Types.FLOAT:
 			fieldType = FieldType.Float;
 			break;
-		case Types.NUMERIC: // TODO: NUMERIC対応
 		case Types.DOUBLE:
 			fieldType = FieldType.Double;
+			break;
+		case Types.NUMERIC:
+			fieldType = FieldType.Numeric;
 			break;
 		case Types.TIMESTAMP:
 			fieldType = FieldType.Timestamp;
@@ -318,9 +277,8 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 			} else if (FieldType.Boolean == field.type) {
 				obj = rs.getBoolean(field.name);
 			} else if (FieldType.Integer == field.type) {
-				BigDecimal decimal = rs.getBigDecimal(field.name);
-				if (null != decimal) {
-					obj = Integer.valueOf(decimal.intValue());
+				if (null != rs.getObject(field.name)) {
+					obj = rs.getInt(field.name);
 				}
 			} else if (FieldType.Long == field.type) {
 				BigDecimal decimal = rs.getBigDecimal(field.name);
@@ -337,6 +295,8 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 				if (null != decimal) {
 					obj = Double.valueOf(decimal.doubleValue());
 				}
+			} else if (FieldType.Numeric == field.type) {
+				obj = rs.getBigDecimal(field.name);
 			} else if (FieldType.Timestamp == field.type) {
 				obj = rs.getTimestamp(field.name);
 			} else if (FieldType.Date == field.type) {
@@ -353,57 +313,6 @@ public final class DatabaseDatasourceBuilder extends DatasourceBuilder {
 		DatabaseRecord record = new DatabaseRecord();
 		record.data = data;
 		return record;
-	}
-
-	/**
-	 * ResultSetを解放する。
-	 * 
-	 * @param rs ResultSet
-	 */
-	private void release(final ResultSet rs) {
-		try {
-			if (null != rs) {
-				if (!rs.isClosed()) {
-					rs.close();
-				}
-			}
-		} catch (SQLException ex) {
-			warn("ResultSet release error.", ex);
-		}
-	}
-
-	/**
-	 * ステートメントを解放する。
-	 * 
-	 * @param s ステートメント
-	 */
-	private void release(final Statement s) {
-		try {
-			if (null != s) {
-				if (!s.isClosed()) {
-					s.close();
-				}
-			}
-		} catch (SQLException ex) {
-			warn("Statement release error.", ex);
-		}
-	}
-
-	/**
-	 * コネクションを解放する。
-	 * 
-	 * @param c コネクション
-	 */
-	private void release(final Connection c) {
-		try {
-			if (null != c) {
-				if (!c.isClosed()) {
-					c.close();
-				}
-			}
-		} catch (SQLException ex) {
-			warn("Connection release error.", ex);
-		}
 	}
 
 	/**
