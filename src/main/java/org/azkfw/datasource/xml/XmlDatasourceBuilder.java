@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.digester3.Digester;
+import org.apache.commons.digester.Digester;
 import org.azkfw.datasource.AbstractTextDatasourceBuilder;
 import org.azkfw.datasource.Datasource;
 import org.azkfw.datasource.Field;
@@ -180,40 +180,11 @@ public final class XmlDatasourceBuilder extends AbstractTextDatasourceBuilder {
 		XmlDatasource datasource = new XmlDatasource();
 		datasource.name = getName();
 
-		InputStream stream = null;
 		try {
 			List<XmlTable> tables = new ArrayList<XmlTable>();
 
 			for (File file : xmlFiles) {
-				List<XmlTableEntity> tableList = null;
-
-				stream = new FileInputStream(file);
-				Digester digester = new Digester();
-
-				digester.addObjectCreate("datasource/tables", ArrayList.class);
-
-				digester.addObjectCreate("datasource/tables/table", XmlTableEntity.class);
-				digester.addSetProperties("datasource/tables/table");
-				digester.addSetNext("datasource/tables/table", "add");
-
-				digester.addObjectCreate("datasource/tables/table/fields", ArrayList.class);
-				digester.addSetNext("datasource/tables/table/fields", "setFields");
-
-				digester.addObjectCreate("datasource/tables/table/fields/field", XmlFieldEntity.class);
-				digester.addSetProperties("datasource/tables/table/fields/field");
-				digester.addSetNext("datasource/tables/table/fields/field", "add");
-
-				digester.addObjectCreate("datasource/tables/table/records", ArrayList.class);
-				digester.addSetNext("datasource/tables/table/records", "setRecords");
-
-				digester.addObjectCreate("datasource/tables/table/records/record", XmlRecordEntity.class);
-				digester.addSetNext("datasource/tables/table/records/record", "add");
-
-				digester.addObjectCreate("datasource/tables/table/records/record/data", XmlRecordDataEntity.class);
-				digester.addSetProperties("datasource/tables/table/records/record/data");
-				digester.addSetNext("datasource/tables/table/records/record/data", "add");
-
-				tableList = digester.parse(stream);
+				List<XmlTableEntity> tableList = parse(new FileInputStream(file), getDigester());
 
 				for (XmlTableEntity t : tableList) {
 					XmlTable table = new XmlTable();
@@ -249,17 +220,27 @@ public final class XmlDatasourceBuilder extends AbstractTextDatasourceBuilder {
 
 			datasource.tables = (List) tables;
 
+		} catch (IOException ex) {
+			fatal(ex);
+			throw new ParseException(ex.getMessage(), -1);
+		}
+
+		return datasource;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T parse(final InputStream stream, final Digester digester) throws ParseException {
+		T result = null;
+		try {
+		result = (T) digester.parse(stream);
 		} catch (SAXException ex) {
 			fatal(ex);
 			throw new ParseException(ex.getMessage(), -1);
 		} catch (IOException ex) {
 			fatal(ex);
 			throw new ParseException(ex.getMessage(), -1);
-		} finally {
-			release(stream);
 		}
-
-		return datasource;
+		return result;
 	}
 
 	/**
@@ -349,6 +330,35 @@ public final class XmlDatasourceBuilder extends AbstractTextDatasourceBuilder {
 		XmlRecord record = new XmlRecord();
 		record.data = data;
 		return record;
+	}
+	
+	private Digester getDigester() {
+		Digester digester = new Digester();
+
+		digester.addObjectCreate("datasource/tables", ArrayList.class);
+
+		digester.addObjectCreate("datasource/tables/table", XmlTableEntity.class);
+		digester.addSetProperties("datasource/tables/table");
+		digester.addSetNext("datasource/tables/table", "add");
+
+		digester.addObjectCreate("datasource/tables/table/fields", ArrayList.class);
+		digester.addSetNext("datasource/tables/table/fields", "setFields");
+
+		digester.addObjectCreate("datasource/tables/table/fields/field", XmlFieldEntity.class);
+		digester.addSetProperties("datasource/tables/table/fields/field");
+		digester.addSetNext("datasource/tables/table/fields/field", "add");
+
+		digester.addObjectCreate("datasource/tables/table/records", ArrayList.class);
+		digester.addSetNext("datasource/tables/table/records", "setRecords");
+
+		digester.addObjectCreate("datasource/tables/table/records/record", XmlRecordEntity.class);
+		digester.addSetNext("datasource/tables/table/records/record", "add");
+
+		digester.addObjectCreate("datasource/tables/table/records/record/data", XmlRecordDataEntity.class);
+		digester.addSetProperties("datasource/tables/table/records/record/data");
+		digester.addSetNext("datasource/tables/table/records/record/data", "add");
+		
+		return digester;
 	}
 
 	/**

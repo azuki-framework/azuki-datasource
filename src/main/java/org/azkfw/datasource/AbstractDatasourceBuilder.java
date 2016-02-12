@@ -17,7 +17,7 @@
  */
 package org.azkfw.datasource;
 
-import org.azkfw.lang.LoggingObject;
+import org.azkfw.log.LoggingObject;
 
 /**
  * このクラスは、データソースをビルドする為の基底クラスです。

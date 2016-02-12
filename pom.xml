@@ -18,7 +18,7 @@
 
 	<groupId>org.azkfw</groupId>
 	<artifactId>azuki-datasource</artifactId>
-	<version>1.6.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>azuki-datasource</name>
@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>org.azkfw</groupId>
 			<artifactId>azuki-base</artifactId>
-			<version>1.5.0</version>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 
         <dependency>

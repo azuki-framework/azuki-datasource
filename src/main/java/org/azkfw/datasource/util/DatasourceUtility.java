@@ -68,7 +68,6 @@ public class DatasourceUtility {
 
 		@Override
 		public int compare(final Record aRecord1, final Record aRecord2) {
-
 			for (String col : cols) {
 				Object obj1 = aRecord1.get(col);
 				Object obj2 = aRecord2.get(col);
@@ -88,6 +87,5 @@ public class DatasourceUtility {
 			}
 			return 0;
 		}
-
 	}
 }
