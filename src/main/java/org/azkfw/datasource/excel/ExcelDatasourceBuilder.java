@@ -67,14 +67,14 @@ public final class ExcelDatasourceBuilder extends AbstractTextDatasourceBuilder 
 	private static final Pattern PTN_TABLE_NAME = Pattern.compile("^(.+?)(\\((.*?){1}\\).*?){0,1}$");
 
 	/** Excelファイル一覧 */
-	private List<File> excelFiles;
+	private List<Object> excelFiles;
 
 	/**
 	 * コンストラクタ
 	 */
 	private ExcelDatasourceBuilder() {
 		super(ExcelDatasourceBuilder.class);
-		excelFiles = new ArrayList<File>();
+		excelFiles = new ArrayList<Object>();
 	}
 
 	/**
@@ -85,7 +85,7 @@ public final class ExcelDatasourceBuilder extends AbstractTextDatasourceBuilder 
 	private ExcelDatasourceBuilder(final String name) {
 		super(ExcelDatasourceBuilder.class);
 		setName(name);
-		excelFiles = new ArrayList<File>();
+		excelFiles = new ArrayList<Object>();
 	}
 
 	/**
@@ -110,6 +110,18 @@ public final class ExcelDatasourceBuilder extends AbstractTextDatasourceBuilder 
 		return builder;
 	}
 
+	/**
+	 * ビルダーを新規作成する。
+	 * 
+	 * @param file Excel(xlsx)ファイルストリーム
+	 * @return 新規ビルダー
+	 */
+	public static ExcelDatasourceBuilder newInstance(final InputStream stream) {
+		ExcelDatasourceBuilder builder = new ExcelDatasourceBuilder();
+		builder = builder.addInputStream(stream);
+		return builder;
+	}
+	
 	/**
 	 * ビルダーを新規作成する。
 	 * 
@@ -180,6 +192,17 @@ public final class ExcelDatasourceBuilder extends AbstractTextDatasourceBuilder 
 		excelFiles.addAll(files);
 		return this;
 	}
+	
+	/**
+	 * Excel(xlsx)ファイルストリームを追加する。
+	 * 
+	 * @param file Excel(xlsx)ファイルストリーム
+	 * @return ビルダー
+	 */
+	public ExcelDatasourceBuilder addInputStream(final InputStream stream) {
+		excelFiles.add(stream);
+		return this;
+	}
 
 	/**
 	 * データソースを構築する。
@@ -196,8 +219,12 @@ public final class ExcelDatasourceBuilder extends AbstractTextDatasourceBuilder 
 		try {
 			List<Table> tables = new ArrayList<>();
 
-			for (File file : excelFiles) {
-				stream = new FileInputStream(file);
+			for (Object obj : excelFiles) {
+				if (obj instanceof File) {
+					stream = new FileInputStream((File)obj);
+				} else if (obj instanceof InputStream) {
+					stream = (InputStream)obj;
+				}
 				XSSFWorkbook workbook = new XSSFWorkbook(stream);
 
 				int cntSheet = workbook.getNumberOfSheets();
